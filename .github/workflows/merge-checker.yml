@@ -6,6 +6,7 @@ on:
 
 jobs:
   build:
+    name: Tesing maven
 
     runs-on: ubuntu-latest
 
