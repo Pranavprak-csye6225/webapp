@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Tesing maven file
+    name: Testing maven file
     runs-on: ubuntu-latest
     env:
       DB_DATABASE: csye
