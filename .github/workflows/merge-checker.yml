@@ -6,7 +6,7 @@ on:
 
 jobs:
   build:
-    name: Tesing maven
+    name: Tesing maven file
 
     runs-on: ubuntu-latest
 
