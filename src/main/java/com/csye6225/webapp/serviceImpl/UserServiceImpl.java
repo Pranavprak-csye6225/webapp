@@ -38,38 +38,47 @@ public class UserServiceImpl implements UserService {
             User createdUser = userRepository.save(user);
             return this.modelMapper.map(createdUser, UserResponseDto.class);
         } catch (Exception e) {
-            System.out.println("CreateUserEx: "+e);
+            System.out.println("CreateUserEx: " + e);
             throw new UserNotCreatedException("User cannot be created");
         }
     }
 
     @Override
     public UserResponseDto getUser(String authorization) throws UserNotFoundException {
-        String[] usernamePassword = base64Decoder(authorization);
-        Optional<User> requestedUser = userRepository.findByUsername(usernamePassword[0]);
-        System.out.println(requestedUser);
-        if (requestedUser.isEmpty())
-            throw new UserNotFoundException();
-        else if (passwordCheck(usernamePassword[1], requestedUser.get().getPassword())) {
-            return this.modelMapper.map(requestedUser, UserResponseDto.class);
-        } else {
-            throw new UserNotFoundException();
-        }
+        return this.modelMapper.map(getUserFromDb(authorization), UserResponseDto.class);
     }
 
     @Override
     public void updateUser(UserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException {
-        UserResponseDto userDto = getUser(authorization);
+        User userDb = getUserFromDb(authorization);
         try {
-            User updatingUser = this.modelMapper.map(user, User.class);
-            updatingUser.setId(userDto.getId());
-            updatingUser.setUsername(userDto.getUsername());
-            updatingUser.setPassword(bcryptEncoder(user.getPassword()));
-            userRepository.save(updatingUser);
+                if (null != user.getPassword()) {
+                    userDb.setPassword(bcryptEncoder(user.getPassword()));
+                }
+                if (null != user.getFirstName()) {
+                    userDb.setFirstName(user.getFirstName());
+                }
+                if (null != user.getLastName()) {
+                    userDb.setLastName(user.getLastName());
+                }
+                userRepository.save(userDb);
         } catch (Exception e) {
             throw new UserNotUpdatedException("User not updated");
         }
 
+    }
+
+    public User getUserFromDb(String authorization) throws UserNotFoundException{
+        String[] usernamePassword = base64Decoder(authorization);
+        Optional<User> requestedUser = userRepository.findByUsername(usernamePassword[0]);
+        System.out.println(requestedUser);
+        if (requestedUser.isEmpty())
+            throw new UserNotFoundException("User Not Found");
+        else if (passwordCheck(usernamePassword[1], requestedUser.get().getPassword())) {
+            return requestedUser.get();
+        } else{
+            throw new UserNotFoundException("Invalid Password");
+        }
     }
 
     @Override
