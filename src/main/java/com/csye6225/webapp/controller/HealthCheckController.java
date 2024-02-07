@@ -20,12 +20,14 @@ public class HealthCheckController {
     }
 
     @GetMapping
-    public ResponseEntity<Void> getHealthCheck(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload) {
+    public ResponseEntity<Void> getHealthCheck(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload, @RequestHeader(value = "authorization", required = false) String authorization) {
         HttpHeaders headers = new HttpHeaders();
         headers.setCacheControl(CacheControl.noCache().mustRevalidate());
         headers.setPragma("no-cache");
         headers.add("X-Content-Type-Options", "nosniff");
-        if (null != payload && !payload.isEmpty()) {
+        if (null != authorization) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).build();
+        } else if (null != payload && !payload.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).build();
         } else if (null != queryParameter && !queryParameter.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).build();
