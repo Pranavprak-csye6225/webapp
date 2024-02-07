@@ -75,4 +75,14 @@ public class UserController {
         }
     }
 
+    @RequestMapping(method = {RequestMethod.HEAD, RequestMethod.OPTIONS}, path = {"","/self"})
+    public ResponseEntity<Void> handleHeadOptionsCall() {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setCacheControl(CacheControl.noCache().mustRevalidate());
+        headers.setPragma("no-cache");
+        headers.add("X-Content-Type-Options", "nosniff");
+        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).headers(headers).build();
+    }
+
+
 }

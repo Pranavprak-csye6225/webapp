@@ -5,6 +5,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpMediaTypeNotSupportedException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MissingRequestHeaderException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -68,6 +69,12 @@ public class GlobalExceptionHandler {
         } else {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(Collections.singletonMap("error", "Headers is missing"));
         }
+    }
+
+    @ExceptionHandler(HttpMediaTypeNotSupportedException.class)
+    public ResponseEntity<String> handleMediaTypeException(HttpMediaTypeNotSupportedException e) {
+        System.out.println("Exception e" + e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).build();
     }
 
     @ExceptionHandler(Exception.class)

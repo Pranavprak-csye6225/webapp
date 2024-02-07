@@ -34,7 +34,9 @@ public class UserServiceImpl implements UserService {
         if (requestedUser.isPresent())
             throw new UserNotCreatedException("Username already exists");
         try {
-            user.setPassword(bcryptEncoder(user.getPassword()));
+            if(null != user.getPassword() && !user.getPassword().isBlank()) {
+                user.setPassword(bcryptEncoder(user.getPassword()));
+            }
             User createdUser = userRepository.save(user);
             return this.modelMapper.map(createdUser, UserResponseDto.class);
         } catch (Exception e) {
@@ -52,7 +54,7 @@ public class UserServiceImpl implements UserService {
     public void updateUser(UserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException {
         User userDb = getUserFromDb(authorization);
         try {
-                if (null != user.getPassword()) {
+                if (null != user.getPassword() && !user.getPassword().isBlank()) {
                     userDb.setPassword(bcryptEncoder(user.getPassword()));
                 }
                 if (null != user.getFirstName()) {
@@ -70,6 +72,9 @@ public class UserServiceImpl implements UserService {
 
     public User getUserFromDb(String authorization) throws UserNotFoundException{
         String[] usernamePassword = base64Decoder(authorization);
+        if(null == usernamePassword || usernamePassword.length<2){
+            throw new UserNotFoundException("Username or password wrong");
+        }
         Optional<User> requestedUser = userRepository.findByUsername(usernamePassword[0]);
         System.out.println(requestedUser);
         if (requestedUser.isEmpty())
