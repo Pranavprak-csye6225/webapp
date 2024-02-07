@@ -33,8 +33,10 @@ public class UserController {
     }
 
     @PostMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<UserResponseDto> createUser(@RequestParam Map<String, String> queryParameter, @RequestBody User user) throws UserNotCreatedException {
+    public ResponseEntity<UserResponseDto> createUser(@RequestParam Map<String, String> queryParameter, @RequestBody User user, @RequestHeader(value = "authorization", required = false) String authorization) throws UserNotCreatedException {
         if (null != queryParameter && !queryParameter.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
+        } else if (null != authorization) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
         }
         try {
@@ -54,12 +56,8 @@ public class UserController {
         } else if (null != queryParameter && !queryParameter.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
         }
-        try {
-            UserResponseDto userDto = userService.getUser(authorization);
-            return ResponseEntity.status(HttpStatus.OK).headers(this.headers).body(userDto);
-        } catch (Exception e) {
-            throw new UserNotFoundException();
-        }
+        UserResponseDto userDto = userService.getUser(authorization);
+        return ResponseEntity.status(HttpStatus.OK).headers(this.headers).body(userDto);
     }
 
     @PutMapping(path = "/self", consumes = "application/json", produces = "application/json")

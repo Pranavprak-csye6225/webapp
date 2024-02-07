@@ -32,7 +32,7 @@ public class User {
 
     @Column(name = "LAST_NAME", nullable = false)
     @JsonProperty("last_name")
-    @JsonAlias("first_name")
+    @JsonAlias("last_name")
     @NotBlank
     private String lastName;
 

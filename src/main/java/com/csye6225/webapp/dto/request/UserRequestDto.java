@@ -15,7 +15,7 @@ public class UserRequestDto {
     private String firstName;
 
     @JsonProperty("last_name")
-    @JsonAlias("first_name")
+    @JsonAlias("last_name")
     private String lastName;
 
     private String password;
