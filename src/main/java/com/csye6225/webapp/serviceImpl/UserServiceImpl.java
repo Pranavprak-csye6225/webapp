@@ -1,7 +1,10 @@
 package com.csye6225.webapp.serviceImpl;
 
+import com.csye6225.webapp.dto.request.UserRequestDto;
 import com.csye6225.webapp.dto.response.UserResponseDto;
 import com.csye6225.webapp.exceptions.UserNotCreatedException;
+import com.csye6225.webapp.exceptions.UserNotFoundException;
+import com.csye6225.webapp.exceptions.UserNotUpdatedException;
 import com.csye6225.webapp.model.User;
 import com.csye6225.webapp.repository.UserRepository;
 import com.csye6225.webapp.service.UserService;
@@ -38,6 +41,35 @@ public class UserServiceImpl implements UserService {
             System.out.println("CreateUserEx: "+e);
             throw new UserNotCreatedException("User cannot be created");
         }
+    }
+
+    @Override
+    public UserResponseDto getUser(String authorization) throws UserNotFoundException {
+        String[] usernamePassword = base64Decoder(authorization);
+        Optional<User> requestedUser = userRepository.findByUsername(usernamePassword[0]);
+        System.out.println(requestedUser);
+        if (requestedUser.isEmpty())
+            throw new UserNotFoundException();
+        else if (passwordCheck(usernamePassword[1], requestedUser.get().getPassword())) {
+            return this.modelMapper.map(requestedUser, UserResponseDto.class);
+        } else {
+            throw new UserNotFoundException();
+        }
+    }
+
+    @Override
+    public void updateUser(UserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException {
+        UserResponseDto userDto = getUser(authorization);
+        try {
+            User updatingUser = this.modelMapper.map(user, User.class);
+            updatingUser.setId(userDto.getId());
+            updatingUser.setUsername(userDto.getUsername());
+            updatingUser.setPassword(bcryptEncoder(user.getPassword()));
+            userRepository.save(updatingUser);
+        } catch (Exception e) {
+            throw new UserNotUpdatedException("User not updated");
+        }
+
     }
 
     @Override

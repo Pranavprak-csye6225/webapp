@@ -40,6 +40,18 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(Collections.singletonMap("error",e.getMessage()));
     }
 
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<Object> handleUserNotFoundException(UserNotFoundException e) {
+        System.out.println("UserNotFoundException: " + e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body(Collections.singletonMap("error","Username or password incorrect"));
+    }
+
+    @ExceptionHandler(UserNotUpdatedException.class)
+    public ResponseEntity<Object> handleNotUpdatedException(UserNotUpdatedException e) {
+        System.out.println("handleNotUpdatedException: " + e);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).build();
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Object> handleWrongRequestException(HttpMessageNotReadableException e) {
         System.out.println("handleWrongRequestException: " + e);
