@@ -1,7 +1,10 @@
 package com.csye6225.webapp.controller;
 
+import com.csye6225.webapp.dto.request.UserRequestDto;
 import com.csye6225.webapp.dto.response.UserResponseDto;
 import com.csye6225.webapp.exceptions.UserNotCreatedException;
+import com.csye6225.webapp.exceptions.UserNotFoundException;
+import com.csye6225.webapp.exceptions.UserNotUpdatedException;
 import com.csye6225.webapp.model.User;
 import com.csye6225.webapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,4 +46,35 @@ public class UserController {
             throw new UserNotCreatedException("User not created");
         }
     }
+
+    @GetMapping("/self")
+    public ResponseEntity<UserResponseDto> getUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload, @RequestHeader("authorization") String authorization) throws UserNotFoundException {
+        if (null != payload && !payload.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
+        } else if (null != queryParameter && !queryParameter.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
+        }
+        try {
+            UserResponseDto userDto = userService.getUser(authorization);
+            return ResponseEntity.status(HttpStatus.OK).headers(this.headers).body(userDto);
+        } catch (Exception e) {
+            throw new UserNotFoundException();
+        }
+    }
+
+    @PutMapping(path = "/self", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<Void> updateUser(@RequestParam Map<String, String> queryParameter, @RequestBody UserRequestDto user, @RequestHeader("authorization") String authorization) throws UserNotUpdatedException, UserNotFoundException {
+        if (null != queryParameter && !queryParameter.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
+        }
+        try {
+            userService.updateUser(user, authorization);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(this.headers).build();
+        } catch (UserNotUpdatedException | UserNotFoundException uex) {
+            throw uex;
+        } catch (Exception e) {
+            throw new UserNotUpdatedException("User not updated");
+        }
+    }
+
 }
