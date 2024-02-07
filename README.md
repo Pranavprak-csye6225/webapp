@@ -1,1 +1,1 @@
-Webapp application for cloud csye6225 course
+Webapp application for cloud CSYE6225 course
