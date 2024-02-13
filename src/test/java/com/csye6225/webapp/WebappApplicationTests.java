@@ -43,7 +43,7 @@ class WebappApplicationTests {
                         .headers(headers))
                         .andExpect(status().isOk())
                         .andExpect(content()
-                           .json("{'username':'pranav@gmail.com','first_name':'Pranav','last_name':'Prakash'}"));
+                           .json("{'username':'prana@gmail.com','first_name':'Pranav','last_name':'Prakash'}"));
     }
 
     @Test
@@ -63,7 +63,7 @@ class WebappApplicationTests {
                         .headers(headers))
                         .andExpect(status().isOk())
                         .andExpect(content()
-                            .json("{'username':'pranav@gmail.com','first_name':'FirstName','last_name':'LastName'}"));
+                            .json("{'username':'pranav@gmail.com','first_name':'Firstame','last_name':'LastName'}"));
     }
 
 }
