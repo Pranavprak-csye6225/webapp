@@ -3,30 +3,38 @@ package com.csye6225.webapp;
 import com.csye6225.webapp.dto.request.CreateUserRequestDto;
 import com.csye6225.webapp.dto.request.UpdateUserRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.restassured.RestAssured;
+import io.restassured.http.ContentType;
+import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.MediaType;
-import org.springframework.test.web.servlet.MockMvc;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.equalTo;
 
-@SpringBootTest
-@AutoConfigureMockMvc
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class WebappApplicationTests {
 
     @Autowired
     private ObjectMapper mapper;
-    @Autowired
-    private MockMvc mockMvc;
+
+    private final static String BASE_URI = "http://localhost";
+
+    @LocalServerPort
+    private int port;
+
+    @PostConstruct
+    public void configureRestAssured() {
+        RestAssured.baseURI = BASE_URI;
+        RestAssured.port = port;
+    }
 
     @Test
     @Order(1)
@@ -35,15 +43,23 @@ class WebappApplicationTests {
         String json = mapper.writeValueAsString(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth("pranav@gmail.com", "pas");
-        this.mockMvc.perform(post("/v1/user").content(json)
-                        .contentType(MediaType.APPLICATION_JSON))
-                        .andExpect(status().isCreated());
-        this.mockMvc.perform(get("/v1/user/self")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .headers(headers))
-                        .andExpect(status().isOk())
-                        .andExpect(content()
-                           .json("{'username':'pranav@gmail.com','first_name':'Pranav','last_name':'Prakash'}"));
+        given()
+                .contentType(ContentType.JSON).body(json)
+                .log().all()
+                .when()
+                .post("/v1/user")
+                .then()
+                .log().all().assertThat().statusCode(201);
+        given()
+                .headers(headers)
+                .log().all()
+                .when()
+                .get("/v1/user/self")
+                .then()
+                .log().all().assertThat().statusCode(200)
+                .body("username", equalTo("pranav@gmail.com"))
+                .body("first_name", equalTo("Pranav"))
+                .body("last_name", equalTo("Prakash"));
     }
 
     @Test
@@ -53,17 +69,26 @@ class WebappApplicationTests {
         String json = mapper.writeValueAsString(user);
         HttpHeaders headers = new HttpHeaders();
         headers.setBasicAuth("pranav@gmail.com", "pas");
-        this.mockMvc.perform(put("/v1/user/self").content(json)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .headers(headers))
-                        .andExpect(status().isNoContent());
+        given()
+                .headers(headers)
+                .contentType(ContentType.JSON).body(json)
+                .log().all()
+                .when()
+                .put("/v1/user/self")
+                .then()
+                .log().all().assertThat().statusCode(204);
+
         headers.setBasicAuth("pranav@gmail.com", "password");
-        this.mockMvc.perform(get("/v1/user/self")
-                        .accept(MediaType.APPLICATION_JSON)
-                        .headers(headers))
-                        .andExpect(status().isOk())
-                        .andExpect(content()
-                            .json("{'username':'pranav@gmail.com','first_name':'FirstName','last_name':'LastName'}"));
+        given()
+                .headers(headers)
+                .log().all()
+                .when()
+                .get("/v1/user/self")
+                .then()
+                .log().all().assertThat().statusCode(200)
+                .body("username", equalTo("pranav@gmail.com"))
+                .body("first_name", equalTo("FirstName"))
+                .body("last_name", equalTo("LastName"));
     }
 
 }
