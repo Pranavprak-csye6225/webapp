@@ -1,11 +1,11 @@
 package com.csye6225.webapp.controller;
 
-import com.csye6225.webapp.dto.request.UserRequestDto;
+import com.csye6225.webapp.dto.request.CreateUserRequestDto;
+import com.csye6225.webapp.dto.request.UpdateUserRequestDto;
 import com.csye6225.webapp.dto.response.UserResponseDto;
 import com.csye6225.webapp.exceptions.UserNotCreatedException;
 import com.csye6225.webapp.exceptions.UserNotFoundException;
 import com.csye6225.webapp.exceptions.UserNotUpdatedException;
-import com.csye6225.webapp.model.User;
 import com.csye6225.webapp.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.CacheControl;
@@ -33,7 +33,7 @@ public class UserController {
     }
 
     @PostMapping(consumes = "application/json", produces = "application/json")
-    public ResponseEntity<UserResponseDto> createUser(@RequestParam Map<String, String> queryParameter, @RequestBody User user, @RequestHeader(value = "authorization", required = false) String authorization) throws UserNotCreatedException {
+    public ResponseEntity<UserResponseDto> createUser(@RequestParam Map<String, String> queryParameter, @RequestBody CreateUserRequestDto user, @RequestHeader(value = "authorization", required = false) String authorization) throws UserNotCreatedException {
         if (null != queryParameter && !queryParameter.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
         } else if (null != authorization) {
@@ -61,7 +61,7 @@ public class UserController {
     }
 
     @PutMapping(path = "/self", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Void> updateUser(@RequestParam Map<String, String> queryParameter, @RequestBody UserRequestDto user, @RequestHeader("authorization") String authorization) throws UserNotUpdatedException, UserNotFoundException {
+    public ResponseEntity<Void> updateUser(@RequestParam Map<String, String> queryParameter, @RequestBody UpdateUserRequestDto user, @RequestHeader("authorization") String authorization) throws UserNotUpdatedException, UserNotFoundException {
         if (null != queryParameter && !queryParameter.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
         }
