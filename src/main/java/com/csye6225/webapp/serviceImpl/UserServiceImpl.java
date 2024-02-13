@@ -1,6 +1,7 @@
 package com.csye6225.webapp.serviceImpl;
 
-import com.csye6225.webapp.dto.request.UserRequestDto;
+import com.csye6225.webapp.dto.request.CreateUserRequestDto;
+import com.csye6225.webapp.dto.request.UpdateUserRequestDto;
 import com.csye6225.webapp.dto.response.UserResponseDto;
 import com.csye6225.webapp.exceptions.UserNotCreatedException;
 import com.csye6225.webapp.exceptions.UserNotFoundException;
@@ -29,15 +30,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto createdUser(User user) throws UserNotCreatedException {
+    public UserResponseDto createdUser(CreateUserRequestDto user) throws UserNotCreatedException {
         Optional<User> requestedUser = userRepository.findByUsername(user.getUsername());
         if (requestedUser.isPresent())
             throw new UserNotCreatedException("Username already exists");
         try {
-            if(null != user.getPassword() && !user.getPassword().isBlank()) {
+            if (null != user.getPassword() && !user.getPassword().isBlank()) {
                 user.setPassword(bcryptEncoder(user.getPassword()));
             }
-            User createdUser = userRepository.save(user);
+            User createdUser = userRepository.save(this.modelMapper.map(user, User.class));
             return this.modelMapper.map(createdUser, UserResponseDto.class);
         } catch (Exception e) {
             System.out.println("CreateUserEx: " + e);
@@ -51,28 +52,33 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void updateUser(UserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException {
+    public void updateUser(UpdateUserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException {
         User userDb = getUserFromDb(authorization);
+        if (null == user.getFirstName() && null == user.getLastName() && null == user.getPassword()) {
+            throw new UserNotUpdatedException("All fields are null or empty");
+        } else if ((null != user.getPassword() && user.getPassword().isBlank()) || (null != user.getFirstName() && user.getFirstName().isBlank()) || (null != user.getLastName() && user.getLastName().isBlank())) {
+            throw new UserNotUpdatedException("Empty value is given in some fields");
+        }
         try {
-                if (null != user.getPassword() && !user.getPassword().isBlank()) {
-                    userDb.setPassword(bcryptEncoder(user.getPassword()));
-                }
-                if (null != user.getFirstName()) {
-                    userDb.setFirstName(user.getFirstName());
-                }
-                if (null != user.getLastName()) {
-                    userDb.setLastName(user.getLastName());
-                }
-                userRepository.save(userDb);
+            if (null != user.getPassword()) {
+                userDb.setPassword(bcryptEncoder(user.getPassword()));
+            }
+            if (null != user.getFirstName()) {
+                userDb.setFirstName(user.getFirstName());
+            }
+            if (null != user.getLastName()) {
+                userDb.setLastName(user.getLastName());
+            }
+            userRepository.save(userDb);
         } catch (Exception e) {
             throw new UserNotUpdatedException("User not updated");
         }
 
     }
 
-    public User getUserFromDb(String authorization) throws UserNotFoundException{
+    public User getUserFromDb(String authorization) throws UserNotFoundException {
         String[] usernamePassword = base64Decoder(authorization);
-        if(null == usernamePassword || usernamePassword.length<2){
+        if (null == usernamePassword || usernamePassword.length < 2) {
             throw new UserNotFoundException("Username or password wrong");
         }
         Optional<User> requestedUser = userRepository.findByUsername(usernamePassword[0]);
@@ -81,7 +87,7 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User Not Found");
         else if (passwordCheck(usernamePassword[1], requestedUser.get().getPassword())) {
             return requestedUser.get();
-        } else{
+        } else {
             throw new UserNotFoundException("Invalid Password");
         }
     }

@@ -9,7 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class UserRequestDto {
+public class CreateUserRequestDto {
+    private String username;
     @JsonProperty("first_name")
     @JsonAlias("first_name")
     private String firstName;
@@ -19,4 +20,6 @@ public class UserRequestDto {
     private String lastName;
 
     private String password;
+
+
 }

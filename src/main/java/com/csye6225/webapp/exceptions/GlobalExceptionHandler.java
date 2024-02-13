@@ -52,7 +52,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotUpdatedException.class)
     public ResponseEntity<Object> handleNotUpdatedException(UserNotUpdatedException e) {
         System.out.println("handleNotUpdatedException: " + e);
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(Collections.singletonMap("error", e.getMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
@@ -80,6 +80,6 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<String> handleException(Exception e) {
         System.out.println("Exception e" + e);
-        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE).headers(headers).build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).build();
     }
 }
