@@ -1,4 +1,4 @@
-# Web Application README
+
 
 ## Introduction
 This repository contains the codebase for a web application developed using Java Spring Boot and MySQL database to meet the requirements outlined in the assignment specifications. The application focuses on implementing RESTful APIs, database bootstrapping, authentication with basic token-based authentication, and continuous integration using GitHub Actions.
