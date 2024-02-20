@@ -87,7 +87,7 @@ class WebappApplicationTests {
                 .then()
                 .log().all().assertThat().statusCode(200)
                 .body("username", equalTo("pranav@gmail.com"))
-                .body("first_name", equalTo("FirstName"))
+                .body("first_name", equalTo("Pranav"))
                 .body("last_name", equalTo("LastName"));
     }
 
