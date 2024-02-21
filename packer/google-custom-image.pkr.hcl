@@ -23,7 +23,7 @@ build {
     "sources.googlecompute.centos8_webapp"
   ]
   provisioner "shell" {
-    script = "script/create-nologin-user.sh"
+    script = "./script/create-nologin-user.sh"
   }
   provisioner "file" {
     source      = "./webapp.service"
@@ -35,10 +35,10 @@ build {
   }
 
   provisioner "shell" {
-    script = "script/install-java.sh"
+    script = "./script/install-java.sh"
   }
   provisioner "shell" {
-    script = "script/install-mysql.sh"
+    script = "./script/install-mysql.sh"
   }
 
   provisioner "file" {
@@ -50,7 +50,7 @@ build {
     destination = "/tmp/"
   }
   provisioner "shell" {
-    script = "script/transfer-ownership.sh"
+    script = "./script/transfer-ownership.sh"
   }
 
 }
