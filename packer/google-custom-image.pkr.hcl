@@ -8,15 +8,14 @@ packer {
 }
 
 source "googlecompute" "centos8_webapp" {
-  project_id            = "cloud-course-csye6225-dev"
-  source_image_family   = "centos-stream-8"
-  zone                  = "us-east4-a"
-  ssh_username          = "packer"
-  network               = "default"
-  image_name            = "centos8-webapp"
-  image_description     = "Custom image to load webapp"
-  credentials_file      = "/Users/pranavprakash/Downloads/cloud-course-csye6225-dev-cffeb10ed9b3.json"
-  service_account_email = "compute-access@cloud-course-csye6225-dev.iam.gserviceaccount.com"
+  project_id            = var.project_id
+  source_image_family   = var.source_image_family
+  zone                  = var.zone
+  ssh_username          = var.zone
+  network               = var.network
+  image_name            = var.image_name
+  image_description     = var.image_description
+  service_account_email = var.service_account_email
 }
 
 build {
@@ -50,9 +49,6 @@ build {
     source      = "../.env"
     destination = "/tmp/"
   }
-
-
-
   provisioner "shell" {
     script = "script/transfer-ownership.sh"
   }
