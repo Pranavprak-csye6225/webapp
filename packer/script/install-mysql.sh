@@ -2,6 +2,7 @@
 
 sudo dnf install -y mysql mysql-server
 
+sudo systemctl enable mysqld
 sudo systemctl start mysqld
 
 # Wait for MySQL service to start
