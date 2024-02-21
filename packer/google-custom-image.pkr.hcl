@@ -30,9 +30,6 @@ build {
     destination = "/tmp/"
   }
 
-  provisioner "shell" {
-    script = "./script/startup-service.sh"
-  }
 
   provisioner "shell" {
     script = "./script/install-java.sh"
@@ -51,6 +48,9 @@ build {
   }
   provisioner "shell" {
     script = "./script/transfer-ownership.sh"
+  }
+  provisioner "shell" {
+    script = "./script/startup-service.sh"
   }
 
 }
