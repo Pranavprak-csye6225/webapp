@@ -11,7 +11,7 @@ source "googlecompute" "centos8_webapp" {
   project_id            = var.project_id
   source_image_family   = var.source_image_family
   zone                  = var.zone
-  ssh_username          = var.zone
+  ssh_username          = var.ssh_username
   network               = var.network
   image_name            = var.image_name
   image_description     = var.image_description
