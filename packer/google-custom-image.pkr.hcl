@@ -43,11 +43,11 @@ build {
 
   provisioner "file" {
     source      = "../target/webapp-1.1.0.jar"
-    destination = "/tmp/"
+    destination = "/opt/"
   }
   provisioner "file" {
     source      = "../.env"
-    destination = "/tmp/"
+    destination = "/opt/"
   }
   provisioner "shell" {
     script = "./script/transfer-ownership.sh"
