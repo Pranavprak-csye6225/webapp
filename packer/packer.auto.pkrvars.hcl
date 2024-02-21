@@ -1,8 +1,0 @@
-project_id            = "cloud-course-csye6225-dev"
-source_image_family   = "centos-stream-8"
-zone                  = "us-east4-a"
-ssh_username          = "packer"
-network               = "default"
-image_name            = "centos8-webapp"
-image_description     = "Custom image to load webapp"
-service_account_email = "compute-access@cloud-course-csye6225-dev.iam.gserviceaccount.com"

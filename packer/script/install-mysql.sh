@@ -9,6 +9,6 @@ sudo systemctl start mysqld
 sudo sleep 5
 
 # Set MySQL root password
-sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'Sqlpassword1.';"
+sudo mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY 'root';"
 
 echo "MySQL installation and root password setup completed."
