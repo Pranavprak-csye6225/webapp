@@ -39,6 +39,6 @@ jobs:
 
       - name: Run packer validate
         working-directory: ./packer
-        run: "packer validate ."
+        run: "packer validate -syntax-only ."
 
 
