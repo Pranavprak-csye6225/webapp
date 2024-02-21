@@ -1,15 +1,15 @@
-name: Java CI with Maven
+name: Integration Testing
 
 on:
   pull_request:
     branches: [ "main" ]
 
 jobs:
-  build:
-    name: Testing maven file
+  job1:
+    name: Integration Testing
+    environment: DEV
     runs-on: ubuntu-latest
     env:
-      DB_DATABASE: csye
       DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
       DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
       DATABASE_URL: ${{secrets.DATABASE_URL}}
@@ -24,6 +24,5 @@ jobs:
       - name: Start MySQL
         run: |
           sudo /etc/init.d/mysql start
-          mysql -h 127.0.0.1 -e "CREATE DATABASE IF NOT EXISTS $DB_DATABASE;" -u$DATABASE_USERNAME -p$DATABASE_PASSWORD
-      - name: Build with Maven
-        run: mvn -B package --file pom.xml
+      - name: Running integration tests
+        run: mvn test --file pom.xml
