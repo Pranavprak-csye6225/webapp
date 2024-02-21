@@ -7,7 +7,6 @@ on:
 jobs:
   packer:
     name: Run Packer
-    environment: DEV
     runs-on: ubuntu-latest
     env:
       PKR_VAR_project_id: ${{secrets.PROJECT_ID}}
@@ -31,9 +30,15 @@ jobs:
         uses: hashicorp/setup-packer@main
 
       - name: Run packer init
-        run: "packer init ./packer"
+        working-directory: ./packer
+        run: "packer init ."
+
+      - name: Run Packer fmt
+        working-directory: ./packer
+        run: packer fmt .
 
       - name: Run packer validate
-        run: "packer validate ./packer"
+        working-directory: ./packer
+        run: "packer validate ."
 
 
