@@ -1,0 +1,14 @@
+[Unit]
+Description=Service File for starting application
+After=network.target
+
+[Service]
+User=csye6225
+Group=csye6225
+Type=simple
+EnvironmentFile=/tmp/.env
+ExecStart=/usr/bin/java -jar /tmp/webapp-1.1.0.jar
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
