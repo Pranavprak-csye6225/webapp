@@ -26,9 +26,17 @@ build {
   provisioner "shell" {
     script = "script/create-nologin-user.sh"
   }
+  provisioner "file" {
+    source      = "./webapp.service"
+    destination = "/tmp/"
+  }
 
   provisioner "shell" {
-    script = "script/install-java-maven.sh"
+    script = "./script/startup-service.sh"
+  }
+
+  provisioner "shell" {
+    script = "script/install-java.sh"
   }
   provisioner "shell" {
     script = "script/install-mysql.sh"
@@ -38,6 +46,13 @@ build {
     source      = "../target/webapp-1.1.0.jar"
     destination = "/tmp/"
   }
+  provisioner "file" {
+    source      = "../.env"
+    destination = "/tmp/"
+  }
+
+
+
   provisioner "shell" {
     script = "script/transfer-ownership.sh"
   }
