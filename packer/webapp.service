@@ -6,8 +6,8 @@ After=network.target
 User=csye6225
 Group=csye6225
 Type=simple
-EnvironmentFile=/tmp/.env
-ExecStart=/usr/bin/java -jar /tmp/webapp-1.1.0.jar
+EnvironmentFile=/opt/.env
+ExecStart=/usr/bin/java -jar /opt/webapp-1.1.0.jar
 Restart=always
 
 [Install]
