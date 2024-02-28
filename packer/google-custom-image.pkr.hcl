@@ -30,13 +30,9 @@ build {
     source      = "../target/webapp-1.1.0.jar"
     destination = "/tmp/"
   }
-  provisioner "file" {
-    source      = "../.env"
-    destination = "/tmp/"
-  }
   provisioner "shell" {
     scripts = ["./script/create-nologin-user.sh", "./script/install-java.sh",
-    "./script/install-mysql.sh", "./script/transfer-ownership.sh", "./script/startup-service.sh"]
+     "./script/transfer-ownership.sh", "./script/startup-service.sh"]
   }
 
 
