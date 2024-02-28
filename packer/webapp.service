@@ -1,5 +1,6 @@
 [Unit]
 Description=Service File for starting application
+ConditionPathExists=/opt/.env
 After=network.target
 
 [Service]
@@ -9,6 +10,7 @@ Type=simple
 EnvironmentFile=/opt/.env
 ExecStart=/usr/bin/java -jar /opt/webapp-1.1.0.jar
 Restart=always
+RestartSec=3s
 
 [Install]
 WantedBy=multi-user.target

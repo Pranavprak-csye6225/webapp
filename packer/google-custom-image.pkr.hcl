@@ -27,6 +27,10 @@ build {
     destination = "/tmp/"
   }
   provisioner "file" {
+    source      = "./webapp.path"
+    destination = "/tmp/"
+  }
+  provisioner "file" {
     source      = "../target/webapp-1.1.0.jar"
     destination = "/tmp/"
   }
