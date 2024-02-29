@@ -8,7 +8,7 @@ packer {
 }
 
 source "googlecompute" "centos8_webapp" {
-  project_id            = var.project_id
+  project_id            = var.project_id1
   source_image_family   = var.source_image_family
   zone                  = var.zone
   ssh_username          = var.ssh_username
@@ -36,7 +36,7 @@ build {
   }
   provisioner "shell" {
     scripts = ["./script/create-nologin-user.sh", "./script/install-java.sh",
-      "./script/transfer-ownership.sh", "./script/startup-service.sh"]
+    "./script/transfer-ownership.sh", "./script/startup-service.sh"]
   }
 
 
