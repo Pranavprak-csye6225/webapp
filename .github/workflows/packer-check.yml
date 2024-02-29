@@ -9,6 +9,9 @@ jobs:
     name: Run Packer
     runs-on: ubuntu-latest
     env:
+      DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
+      DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
+      DATABASE_URL: ${{secrets.DATABASE_URL}}
       PKR_VAR_project_id: ${{secrets.PROJECT_ID}}
       PKR_VAR_source_image_family: ${{secrets.SOURCE_IMAGE_FAMILY}}
       PKR_VAR_zone: ${{secrets.IMAGE_ZONE}}
@@ -20,6 +23,17 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+      - name: Start MySQL
+        run: |
+          sudo /etc/init.d/mysql start
+      - name: Build with Maven
+        run: mvn -B package --file pom.xml
 
       - name: GCP Credentials
         uses: 'google-github-actions/auth@v2'
