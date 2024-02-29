@@ -13,7 +13,7 @@ source "googlecompute" "centos8_webapp" {
   zone                  = var.zone
   ssh_username          = var.ssh_username
   network               = var.network
-  image_name            = var.image_name
+  image_name            = "${var.image_name}-{{timestamp}}"
   image_description     = var.image_description
   service_account_email = var.service_account_email
 }
@@ -36,7 +36,7 @@ build {
   }
   provisioner "shell" {
     scripts = ["./script/create-nologin-user.sh", "./script/install-java.sh",
-     "./script/transfer-ownership.sh", "./script/startup-service.sh"]
+      "./script/transfer-ownership.sh", "./script/startup-service.sh"]
   }
 
 
