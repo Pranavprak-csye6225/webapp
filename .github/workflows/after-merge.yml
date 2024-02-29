@@ -53,16 +53,16 @@ jobs:
 
       - name: Run packer init
         working-directory: ./packer
-        run: "packer init ."
+        run: packer init .
 
       - name: Run Packer fmt
         working-directory: ./packer
-        run: packer fmt .
+        run: packer fmt -check .
 
       - name: Run packer validate
         working-directory: ./packer
-        run: "packer validate ."
+        run: packer validate .
 
       - name: Run packer build
         working-directory: ./packer
-        run: "packer build ."
+        run: packer build .
