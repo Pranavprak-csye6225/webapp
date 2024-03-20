@@ -25,6 +25,5 @@ jobs:
           sudo /etc/init.d/mysql start
       - name: Running integration tests
         run: |
-          sudo touch /var/log/webapp.log
-          sudo chmod 755 /var/log/webapp.log
+          sudo chmod -R 755 /var/log/
           mvn test --file pom.xml
