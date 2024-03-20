@@ -36,7 +36,7 @@ build {
   }
   provisioner "shell" {
     scripts = ["./script/create-nologin-user.sh", "./script/install-java.sh",
-    "./script/transfer-ownership.sh", "./script/startup-service.sh"]
+    "./script/transfer-ownership.sh", "./script/ops-agent.sh", "./script/startup-service.sh"]
   }
 
 
