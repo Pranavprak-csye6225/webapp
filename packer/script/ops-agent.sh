@@ -14,18 +14,17 @@ logging:
       type: files
       include_paths:
         - /var/log/webapp.log
-        - /var/log/messages
       record_log_file_path: true
   processors:
     my-app-processor:
       type: parse_json
-      time_key: "Timestamp/UTC"
+      time_key: "Timestamp"
       time_format: "%Y-%m-%dT%H:%M:%S.%LZ"
     move_severity:
       type: modify_fields
       fields:
         severity:
-          move_from: jsonPayload.severity
+          move_from: jsonPayload.Severity
   service:
     pipelines:
       default_pipeline:

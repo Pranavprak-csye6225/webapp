@@ -2,11 +2,12 @@
 <configuration>
     <property name="LOG_PATH" value="/var/log"/>
     <property name="LOG_FILE_NAME" value="webapp"/>
+    <logger name="org" level="INFO"/>
     <appender name="ConsoleOutput" class="ch.qos.logback.core.ConsoleAppender">
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <timestamp>
-                    <fieldName>Timestamp/UTC</fieldName>
+                    <fieldName>Timestamp</fieldName>
                     <timeZone>UTC</timeZone>
                 </timestamp>
                 <logLevel>
@@ -54,7 +55,7 @@
         <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
             <providers>
                 <timestamp>
-                    <fieldName>Timestamp/UTC</fieldName>
+                    <fieldName>Timestamp</fieldName>
                     <timeZone>UTC</timeZone>
                 </timestamp>
                 <logLevel>
@@ -98,7 +99,7 @@
         </encoder>
     </appender>
 
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="ConsoleOutput"/>
         <appender-ref ref="jsonFileAppender"/>
     </root>
