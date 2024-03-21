@@ -35,10 +35,11 @@ jobs:
       - name: Start MySQL
         run: |
           sudo /etc/init.d/mysql start
+      - name: Preparing log directory
+        run: |
+          sudo chmod -R 766 /var/log/
       - name: Build with Maven
         run:  |
-          sudo touch /var/log/webapp.log
-          sudo chmod 755 /var/log/webapp.log
           mvn -B package --file pom.xml
 
       - name: GCP Credentials
