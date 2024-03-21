@@ -25,7 +25,7 @@ jobs:
           sudo /etc/init.d/mysql start
       - name: Preparing log directory
         run: |
-          sudo chmod -R 777 /var/log/
+          sudo chmod -R 733 /var/log/
       - name: Running integration tests
         run: |
           mvn test --file pom.xml

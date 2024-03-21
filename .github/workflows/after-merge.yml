@@ -37,7 +37,7 @@ jobs:
           sudo /etc/init.d/mysql start
       - name: Preparing log directory
         run: |
-          sudo chmod -R 766 /var/log/
+          sudo chmod -R 733 /var/log/
       - name: Build with Maven
         run:  |
           mvn -B package --file pom.xml
