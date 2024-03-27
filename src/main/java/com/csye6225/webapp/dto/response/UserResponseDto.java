@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -20,6 +22,6 @@ public class UserResponseDto {
     @JsonAlias("last_name")
     private String lastName;
     private String username;
-    private String accountCreated;
-    private String accountUpdated;
+    private Date accountCreated;
+    private Date accountUpdated;
 }

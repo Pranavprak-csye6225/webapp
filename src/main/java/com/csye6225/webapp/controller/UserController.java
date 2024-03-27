@@ -6,6 +6,7 @@ import com.csye6225.webapp.dto.response.UserResponseDto;
 import com.csye6225.webapp.exceptions.UserNotCreatedException;
 import com.csye6225.webapp.exceptions.UserNotFoundException;
 import com.csye6225.webapp.exceptions.UserNotUpdatedException;
+import com.csye6225.webapp.exceptions.UserNotVerifiedException;
 import com.csye6225.webapp.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +17,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.Map;
 
 @RestController
@@ -59,7 +61,7 @@ public class UserController {
     }
 
     @GetMapping("/self")
-    public ResponseEntity<UserResponseDto> getUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload, @RequestHeader("authorization") String authorization) throws UserNotFoundException {
+    public ResponseEntity<UserResponseDto> getUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload, @RequestHeader("authorization") String authorization) throws UserNotFoundException, UserNotVerifiedException {
         logger.info("In GET user method");
         logger.debug("The request given by the user: "+ payload);
         if (null != payload && !payload.isEmpty()) {
@@ -75,7 +77,7 @@ public class UserController {
     }
 
     @PutMapping(path = "/self", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<Void> updateUser(@RequestParam Map<String, String> queryParameter, @RequestBody UpdateUserRequestDto user, @RequestHeader("authorization") String authorization) throws UserNotUpdatedException, UserNotFoundException {
+    public ResponseEntity<Void> updateUser(@RequestParam Map<String, String> queryParameter, @RequestBody UpdateUserRequestDto user, @RequestHeader("authorization") String authorization) throws UserNotUpdatedException, UserNotFoundException, UserNotVerifiedException {
         logger.info("In PUT user method");
         logger.debug("The request given by the user: "+ user);
         if (null != queryParameter && !queryParameter.isEmpty()) {
@@ -86,11 +88,22 @@ public class UserController {
             userService.updateUser(user, authorization);
             logger.info("PUT request is success");
             return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(this.headers).build();
-        } catch (UserNotUpdatedException | UserNotFoundException uex) {
+        } catch (UserNotUpdatedException | UserNotFoundException | UserNotVerifiedException uex) {
             throw uex;
         } catch (Exception e) {
             throw new UserNotUpdatedException("User not updated");
         }
+    }
+
+    @GetMapping("/verify")
+    public ResponseEntity<Object> verifyUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload) throws UserNotVerifiedException {
+        logger.debug("The request given by the user: "+ payload);
+            if (null != payload && !payload.isEmpty()) {
+                logger.error("Payload is given");
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
+            }
+            String message = userService.verifyUser(queryParameter);
+            return ResponseEntity.status(HttpStatus.OK).headers(this.headers).body(Collections.singletonMap("verificationStatus", message));
     }
 
     @RequestMapping(method = {RequestMethod.HEAD, RequestMethod.OPTIONS}, path = {"","/self"})

@@ -147,6 +147,42 @@ public class UserServiceImpl implements UserService {
         return checker.matches(rawPassword, hashedPassword);
     }
 
+    @Override
+    public String verifyUser(Map<String, String> queryParameter) throws UserNotVerifiedException {
+        if (queryParameter.containsKey("username") && queryParameter.containsKey("token")) {
+            String username = queryParameter.get("username");
+            String token = queryParameter.get("token");
+            Optional<User> requestedUser = userRepository.findByUsername(username);
+            if (requestedUser.isEmpty())
+                throw new UserNotVerifiedException("User Not Verified");
+            else if(requestedUser.get().isVerified()){
+                logger.info("User already verified:"+username);
+                return "User already verified";
+            }
+            else if(token.equals(requestedUser.get().getId())){
+                Instant instantVerificationTime = requestedUser.get().getEmailSentTime().toInstant();
+                logger.info("instant time: "+Instant.now()+"for user:"+requestedUser.get().getUsername());
+                logger.info("db time: "+instantVerificationTime);
+                Duration duration = Duration.between(instantVerificationTime, Instant.now());
+                if(duration.toSeconds() < 120) {
+                    requestedUser.get().setVerified(true);
+                    userRepository.save(requestedUser.get());
+                    return "User Email verified";
+                } else{
+                    throw new UserNotVerifiedException("Link is expired");
+                }
+            } else{
+                requestedUser.get().setVerified(false);
+                userRepository.save(requestedUser.get());
+                logger.error("Token is different, Given: "+token+", Actual: "+requestedUser.get().getId()+"for user: "+username);
+                throw new UserNotVerifiedException("User Not Verified");
+            }
+        } else {
+            logger.error("Error: Missing username or token");
+            throw new UserNotVerifiedException("User Not Verified");
+        }
+    }
+
     public void publishMessage(String usernameToken) throws InterruptedException {
         String projectId = environment.getProperty("PROJECT_ID");
         String topicId = environment.getProperty("TOPIC_ID");
