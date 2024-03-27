@@ -5,6 +5,8 @@ import com.csye6225.webapp.dto.request.UpdateUserRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.restassured.response.Response;
+import io.restassured.response.ValidatableResponse;
 import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Order;
@@ -39,17 +41,26 @@ class WebappApplicationTests {
     @Test
     @Order(1)
     void createGetSuccessTest() throws Exception {
-        CreateUserRequestDto user = new CreateUserRequestDto("pranav@gmail.com", "Pranav", "Prakash", "pas");
+        CreateUserRequestDto user = new CreateUserRequestDto("pranav0715@gmail.com", "Pranav", "Prakash", "pas");
         String json = mapper.writeValueAsString(user);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("pranav@gmail.com", "pas");
-        given()
+        headers.setBasicAuth("pranav0715@gmail.com", "pas");
+        ValidatableResponse postResponse = given()
                 .contentType(ContentType.JSON).body(json)
                 .log().all()
                 .when()
                 .post("/v1/user")
                 .then()
                 .log().all().assertThat().statusCode(201);
+        String userid = postResponse.extract().path("id");
+        given()
+                .param("username", "pranav0715@gmail.com")
+                .param("token", userid)
+                .log().all()
+                .when()
+                .get("/v1/user/verify")
+                .then()
+                .log().all().assertThat().statusCode(200);
         given()
                 .headers(headers)
                 .log().all()
@@ -57,7 +68,7 @@ class WebappApplicationTests {
                 .get("/v1/user/self")
                 .then()
                 .log().all().assertThat().statusCode(200)
-                .body("username", equalTo("pranav@gmail.com"))
+                .body("username", equalTo("pranav0715@gmail.com"))
                 .body("first_name", equalTo("Pranav"))
                 .body("last_name", equalTo("Prakash"));
     }
@@ -68,7 +79,7 @@ class WebappApplicationTests {
         UpdateUserRequestDto user = new UpdateUserRequestDto("FirstName", "LastName", "password");
         String json = mapper.writeValueAsString(user);
         HttpHeaders headers = new HttpHeaders();
-        headers.setBasicAuth("pranav@gmail.com", "pas");
+        headers.setBasicAuth("pranav0715@gmail.com", "pas");
         given()
                 .headers(headers)
                 .contentType(ContentType.JSON).body(json)
@@ -78,7 +89,7 @@ class WebappApplicationTests {
                 .then()
                 .log().all().assertThat().statusCode(204);
 
-        headers.setBasicAuth("pranav@gmail.com", "password");
+        headers.setBasicAuth("pranav0715@gmail.com", "password");
         given()
                 .headers(headers)
                 .log().all()
@@ -86,7 +97,7 @@ class WebappApplicationTests {
                 .get("/v1/user/self")
                 .then()
                 .log().all().assertThat().statusCode(200)
-                .body("username", equalTo("pranav@gmail.com"))
+                .body("username", equalTo("pranav0715@gmail.com"))
                 .body("first_name", equalTo("FirstName"))
                 .body("last_name", equalTo("LastName"));
     }
