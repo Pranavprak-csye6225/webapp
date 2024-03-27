@@ -7,6 +7,7 @@ import com.csye6225.webapp.dto.response.UserResponseDto;
 import com.csye6225.webapp.exceptions.UserNotCreatedException;
 import com.csye6225.webapp.exceptions.UserNotFoundException;
 import com.csye6225.webapp.exceptions.UserNotUpdatedException;
+import com.csye6225.webapp.exceptions.UserNotVerifiedException;
 import com.csye6225.webapp.model.User;
 import com.csye6225.webapp.repository.UserRepository;
 import com.csye6225.webapp.service.UserService;
@@ -14,11 +15,22 @@ import org.modelmapper.ModelMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.env.Environment;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import com.google.api.core.ApiFuture;
+import com.google.cloud.pubsub.v1.Publisher;
+import com.google.protobuf.ByteString;
+import com.google.pubsub.v1.PubsubMessage;
+import com.google.pubsub.v1.TopicName;
 
+
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Base64;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -27,10 +39,13 @@ public class UserServiceImpl implements UserService {
 
     private final ModelMapper modelMapper;
 
+    private final Environment environment;
+
     @Autowired
-    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper) {
+    public UserServiceImpl(UserRepository userRepository, ModelMapper modelMapper, Environment environment) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.environment = environment;
     }
 
     @Override
@@ -46,6 +61,7 @@ public class UserServiceImpl implements UserService {
                 user.setPassword(bcryptEncoder(user.getPassword()));
             }
             User createdUser = userRepository.save(this.modelMapper.map(user, User.class));
+            publishMessage(createdUser.getUsername()+":"+createdUser.getId());
             return this.modelMapper.map(createdUser, UserResponseDto.class);
         } catch (Exception e) {
             logger.error("User cannot be created");
@@ -54,12 +70,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto getUser(String authorization) throws UserNotFoundException {
+    public UserResponseDto getUser(String authorization) throws UserNotFoundException, UserNotVerifiedException {
         return this.modelMapper.map(getUserFromDb(authorization), UserResponseDto.class);
     }
 
     @Override
-    public void updateUser(UpdateUserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException {
+    public void updateUser(UpdateUserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException, UserNotVerifiedException {
         User userDb = getUserFromDb(authorization);
         logger.info("In update ServiceImpl Method");
         if (null == user.getFirstName() && null == user.getLastName() && null == user.getPassword()) {
@@ -89,7 +105,7 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    public User getUserFromDb(String authorization) throws UserNotFoundException {
+    public User getUserFromDb(String authorization) throws UserNotFoundException, UserNotVerifiedException {
         String[] usernamePassword = base64Decoder(authorization);
         if (null == usernamePassword || usernamePassword.length < 2) {
             throw new UserNotFoundException("Username or password wrong");
@@ -99,7 +115,11 @@ public class UserServiceImpl implements UserService {
             throw new UserNotFoundException("User Not Found");
         else if (passwordCheck(usernamePassword[1], requestedUser.get().getPassword())) {
             logger.debug("User data given by db: "+ requestedUser.get());
-            return requestedUser.get();
+            if(requestedUser.get().isVerified()) {
+                return requestedUser.get();
+            } else {
+                throw new UserNotVerifiedException("User not verified");
+            }
         } else {
             logger.error("Invalid Password");
             throw new UserNotFoundException("Invalid Password");
@@ -126,4 +146,41 @@ public class UserServiceImpl implements UserService {
         BCryptPasswordEncoder checker = new BCryptPasswordEncoder();
         return checker.matches(rawPassword, hashedPassword);
     }
+
+    public void publishMessage(String usernameToken) throws InterruptedException {
+        String projectId = environment.getProperty("PROJECT_ID");
+        String topicId = environment.getProperty("TOPIC_ID");
+        logger.info("In Publish");
+        TopicName topicName = TopicName.of(projectId, topicId);
+        logger.info(topicName.toString());
+
+        Publisher publisher = null;
+        try {
+            logger.info("Line 151");
+            // Create a publisher instance with default settings bound to the topic
+            publisher = Publisher.newBuilder(topicName).build();
+
+            ByteString data = ByteString.copyFromUtf8(usernameToken);
+            logger.info("Line 156");
+            PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
+
+            // Once published, returns a server-assigned message id (unique within the topic)
+            ApiFuture<String> messageIdFuture = publisher.publish(pubsubMessage);
+            logger.info("After publish"+messageIdFuture);
+            String messageId = messageIdFuture.get();
+            logger.info("Published message ID: " + messageId + ", for user: "+usernameToken);
+        } catch (Exception e){
+            logger.error("Error in publishing message to send email for user: "+usernameToken);
+        }
+            finally {
+            logger.info("In finally");
+            if (publisher != null) {
+                logger.info(publisher.getTopicName().toString());
+                // When finished with the publisher, shutdown to free up resources.
+                publisher.shutdown();
+                publisher.awaitTermination(1, TimeUnit.MINUTES);
+            }
+        }
+    }
+
 }
