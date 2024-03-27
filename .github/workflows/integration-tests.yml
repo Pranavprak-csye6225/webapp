@@ -12,6 +12,8 @@ jobs:
       DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
       DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
       DATABASE_URL: ${{secrets.DATABASE_URL}}
+      TOPIC_ID: ${{secrets.TOPIC_ID}}
+      PROJECT_ID: ${{secrets.PROJECT_ID}}
 
     steps:
       - uses: actions/checkout@v3
