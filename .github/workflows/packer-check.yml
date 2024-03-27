@@ -12,6 +12,8 @@ jobs:
       DATABASE_USERNAME: ${{secrets.DATABASE_USERNAME}}
       DATABASE_PASSWORD: ${{secrets.DATABASE_PASSWORD}}
       DATABASE_URL: ${{secrets.DATABASE_URL}}
+      TOPIC_ID: ${{secrets.TOPIC_ID}}
+      PROJECT_ID: ${{secrets.PROJECT_ID}}
       PKR_VAR_project_id: ${{secrets.PROJECT_ID}}
       PKR_VAR_source_image_family: ${{secrets.SOURCE_IMAGE_FAMILY}}
       PKR_VAR_zone: ${{secrets.IMAGE_ZONE}}
