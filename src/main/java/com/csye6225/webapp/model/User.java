@@ -52,8 +52,7 @@ public class User {
     @Column(name = "IS_VERIFIED")
     @Value("${props.boolean.isVerified:#{false}}")
     private boolean isVerified;
-
-    @CreationTimestamp
+    
     @Column(name = "EMAIL_SENT_TIME")
     private Date emailSentTime;
 
