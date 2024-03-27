@@ -20,6 +20,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
+      - name: GCP Credentials
+        uses: 'google-github-actions/auth@v2'
+        with:
+          credentials_json: '${{secrets.GCP_CREDENTIALS}}'
       - name: Start MySQL
         run: |
           sudo /etc/init.d/mysql start
