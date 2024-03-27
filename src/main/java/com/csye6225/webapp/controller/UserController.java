@@ -31,7 +31,6 @@ public class UserController {
 
     @Autowired
     public UserController(UserService userService) {
-        logger.info("In User Controller");
         this.userService = userService;
         this.headers = new HttpHeaders();
         headers.setCacheControl(CacheControl.noCache().mustRevalidate());
@@ -41,12 +40,12 @@ public class UserController {
 
     @PostMapping(consumes = "application/json", produces = "application/json")
     public ResponseEntity<UserResponseDto> createUser(@RequestParam Map<String, String> queryParameter, @RequestBody CreateUserRequestDto user, @RequestHeader(value = "authorization", required = false) String authorization) throws UserNotCreatedException {
-        logger.info("In POST user method");
+        logger.info("In POST user method for user: "+user.getUsername());
         if (null != queryParameter && !queryParameter.isEmpty()) {
-            logger.error("Query parameter is given: "+queryParameter);
+            logger.error("Query parameter is given: "+queryParameter+", by user"+user.getUsername());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
         } else if (null != authorization) {
-            logger.error("Authorization is given");
+            logger.error("Authorization is given, by user"+user.getUsername());
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
         }
         try {
@@ -54,16 +53,17 @@ public class UserController {
             logger.info("POST Request Success and newly created user: "+ createdUserDto);
             return ResponseEntity.status(HttpStatus.CREATED).headers(this.headers).body(createdUserDto);
         } catch (UserNotCreatedException uex) {
+            logger.error("Exception occurred for user while creating: "+user.getUsername());
             throw uex;
         } catch (Exception e) {
+            logger.error("Exception occurred for user while creating: "+user.getUsername());
             throw new UserNotCreatedException("User not created");
         }
     }
 
     @GetMapping("/self")
     public ResponseEntity<UserResponseDto> getUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload, @RequestHeader("authorization") String authorization) throws UserNotFoundException, UserNotVerifiedException {
-        logger.info("In GET user method");
-        logger.debug("The request given by the user: "+ payload);
+        logger.debug("The request given by the user for get call: "+ payload);
         if (null != payload && !payload.isEmpty()) {
             logger.error("Payload is given");
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
@@ -78,7 +78,6 @@ public class UserController {
 
     @PutMapping(path = "/self", consumes = "application/json", produces = "application/json")
     public ResponseEntity<Void> updateUser(@RequestParam Map<String, String> queryParameter, @RequestBody UpdateUserRequestDto user, @RequestHeader("authorization") String authorization) throws UserNotUpdatedException, UserNotFoundException, UserNotVerifiedException {
-        logger.info("In PUT user method");
         logger.debug("The request given by the user: "+ user);
         if (null != queryParameter && !queryParameter.isEmpty()) {
             logger.error("Query parameter is given");
@@ -86,23 +85,26 @@ public class UserController {
         }
         try {
             userService.updateUser(user, authorization);
-            logger.info("PUT request is success");
+            logger.info("PUT request is success for user:"+user.getFirstName());
             return ResponseEntity.status(HttpStatus.NO_CONTENT).headers(this.headers).build();
         } catch (UserNotUpdatedException | UserNotFoundException | UserNotVerifiedException uex) {
+            logger.error("Exception occurred for user while creating: "+user.getFirstName());
             throw uex;
         } catch (Exception e) {
+            logger.error("Exception occurred for user while creating: "+user.getFirstName());
             throw new UserNotUpdatedException("User not updated");
         }
     }
 
     @GetMapping("/verify")
-    public ResponseEntity<Object> verifyUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload) throws UserNotVerifiedException {
-        logger.debug("The request given by the user: "+ payload);
+    public ResponseEntity<Object> verifyUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload,  @RequestHeader("isIntegrationTest") String isIntegrationTest) throws UserNotVerifiedException {
+        logger.debug("The request given by the user: "+ queryParameter);
             if (null != payload && !payload.isEmpty()) {
                 logger.error("Payload is given");
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(this.headers).build();
             }
-            String message = userService.verifyUser(queryParameter);
+            String message = userService.verifyUser(queryParameter,isIntegrationTest);
+            logger.info("VerificationStatus for user:"+message+", using"+queryParameter);
             return ResponseEntity.status(HttpStatus.OK).headers(this.headers).body(Collections.singletonMap("verificationStatus", message));
     }
 

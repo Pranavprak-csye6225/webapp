@@ -151,7 +151,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String verifyUser(Map<String, String> queryParameter) throws UserNotVerifiedException {
+    public String verifyUser(Map<String, String> queryParameter, String isIntegrationTest) throws UserNotVerifiedException {
         if (queryParameter.containsKey("username") && queryParameter.containsKey("token")) {
             String username = queryParameter.get("username");
             String token = queryParameter.get("token");
@@ -159,6 +159,11 @@ public class UserServiceImpl implements UserService {
             if (requestedUser.isEmpty()) {
                 logger.error("User not verified");
                 throw new UserNotVerifiedException("User Not Verified");
+            } else if(isIntegrationTest.equals("true")){
+                requestedUser.get().setVerified(true);
+                userRepository.save(requestedUser.get());
+                logger.info("User Email Verified");
+                return "User Email verified";
             }
             else if(requestedUser.get().isVerified()){
                 logger.info("User already verified:"+username);

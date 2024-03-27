@@ -5,7 +5,6 @@ import com.csye6225.webapp.dto.request.UpdateUserRequestDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
-import io.restassured.response.Response;
 import io.restassured.response.ValidatableResponse;
 import jakarta.annotation.PostConstruct;
 import org.junit.jupiter.api.MethodOrderer;
@@ -56,6 +55,7 @@ class WebappApplicationTests {
         given()
                 .param("username", "pranav0715@gmail.com")
                 .param("token", userid)
+                .header("isIntegrationTest", "true")
                 .log().all()
                 .when()
                 .get("/v1/user/verify")

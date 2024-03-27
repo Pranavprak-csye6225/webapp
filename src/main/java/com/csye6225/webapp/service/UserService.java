@@ -19,5 +19,5 @@ public interface UserService {
     String[] base64Decoder(String token);
     String bcryptEncoder(String password);
     boolean passwordCheck(String rawPassword, String hashedPassword);
-    String verifyUser(Map<String, String> queryParameter) throws UserNotVerifiedException;
+    String verifyUser(Map<String, String> queryParameter, String isIntegrationTest) throws UserNotVerifiedException;
 }
