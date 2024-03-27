@@ -51,9 +51,8 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto createdUser(CreateUserRequestDto user) throws UserNotCreatedException {
         Optional<User> requestedUser = userRepository.findByUsername(user.getUsername());
-        logger.info("In POST serviceimpl user");
         if (requestedUser.isPresent()) {
-            logger.error("Username already exists");
+            logger.error("Username already exists for user: "+user.getUsername());
             throw new UserNotCreatedException("Username already exists");
         }
         try {
@@ -64,7 +63,7 @@ public class UserServiceImpl implements UserService {
             publishMessage(createdUser.getUsername()+":"+createdUser.getId());
             return this.modelMapper.map(createdUser, UserResponseDto.class);
         } catch (Exception e) {
-            logger.error("User cannot be created");
+            logger.error("User cannot be created for user, "+user.getUsername());
             throw new UserNotCreatedException("User cannot be created");
         }
     }
@@ -77,12 +76,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public void updateUser(UpdateUserRequestDto user, String authorization) throws UserNotUpdatedException, UserNotFoundException, UserNotVerifiedException {
         User userDb = getUserFromDb(authorization);
-        logger.info("In update ServiceImpl Method");
         if (null == user.getFirstName() && null == user.getLastName() && null == user.getPassword()) {
             logger.error("All fields are null or empty");
             throw new UserNotUpdatedException("All fields are null or empty");
         } else if ((null != user.getPassword() && user.getPassword().isBlank()) || (null != user.getFirstName() && user.getFirstName().isBlank()) || (null != user.getLastName() && user.getLastName().isBlank())) {
-            logger.error("Empty value is given in some fields");
+            logger.error("Empty value is given in some fields by user: "+userDb.getUsername());
             throw new UserNotUpdatedException("Empty value is given in some fields");
         }
         try {
@@ -100,6 +98,7 @@ public class UserServiceImpl implements UserService {
             }
             userRepository.save(userDb);
         } catch (Exception e) {
+            logger.error("User not updated for user: "+userDb.getUsername());
             throw new UserNotUpdatedException("User not updated");
         }
 
@@ -108,20 +107,24 @@ public class UserServiceImpl implements UserService {
     public User getUserFromDb(String authorization) throws UserNotFoundException, UserNotVerifiedException {
         String[] usernamePassword = base64Decoder(authorization);
         if (null == usernamePassword || usernamePassword.length < 2) {
+            logger.error("Username or password wrong");
             throw new UserNotFoundException("Username or password wrong");
         }
         Optional<User> requestedUser = userRepository.findByUsername(usernamePassword[0]);
-        if (requestedUser.isEmpty())
+        if (requestedUser.isEmpty()) {
+            logger.error("User not found for user: "+usernamePassword[0]);
             throw new UserNotFoundException("User Not Found");
+        }
         else if (passwordCheck(usernamePassword[1], requestedUser.get().getPassword())) {
-            logger.debug("User data given by db: "+ requestedUser.get());
             if(requestedUser.get().isVerified()) {
                 return requestedUser.get();
             } else {
+                logger.error("User not verified");
                 throw new UserNotVerifiedException("User not verified");
             }
         } else {
             logger.error("Invalid Password");
+            logger.error("Password is invalid for user: "+usernamePassword[0]);
             throw new UserNotFoundException("Invalid Password");
         }
     }
@@ -153,8 +156,10 @@ public class UserServiceImpl implements UserService {
             String username = queryParameter.get("username");
             String token = queryParameter.get("token");
             Optional<User> requestedUser = userRepository.findByUsername(username);
-            if (requestedUser.isEmpty())
+            if (requestedUser.isEmpty()) {
+                logger.error("User not verified");
                 throw new UserNotVerifiedException("User Not Verified");
+            }
             else if(requestedUser.get().isVerified()){
                 logger.info("User already verified:"+username);
                 return "User already verified";
@@ -167,8 +172,10 @@ public class UserServiceImpl implements UserService {
                 if(duration.toSeconds() < 120) {
                     requestedUser.get().setVerified(true);
                     userRepository.save(requestedUser.get());
+                    logger.info("User Email Verified");
                     return "User Email verified";
                 } else{
+                    logger.error("Link is expired");
                     throw new UserNotVerifiedException("Link is expired");
                 }
             } else{
@@ -186,18 +193,16 @@ public class UserServiceImpl implements UserService {
     public void publishMessage(String usernameToken) throws InterruptedException {
         String projectId = environment.getProperty("PROJECT_ID");
         String topicId = environment.getProperty("TOPIC_ID");
-        logger.info("In Publish");
+        logger.info("In Publish Message for usernameToken: "+usernameToken);
         TopicName topicName = TopicName.of(projectId, topicId);
         logger.info(topicName.toString());
 
         Publisher publisher = null;
         try {
-            logger.info("Line 151");
             // Create a publisher instance with default settings bound to the topic
             publisher = Publisher.newBuilder(topicName).build();
 
             ByteString data = ByteString.copyFromUtf8(usernameToken);
-            logger.info("Line 156");
             PubsubMessage pubsubMessage = PubsubMessage.newBuilder().setData(data).build();
 
             // Once published, returns a server-assigned message id (unique within the topic)
@@ -209,7 +214,7 @@ public class UserServiceImpl implements UserService {
             logger.error("Error in publishing message to send email for user: "+usernameToken);
         }
             finally {
-            logger.info("In finally");
+            logger.info("In finally publish method");
             if (publisher != null) {
                 logger.info(publisher.getTopicName().toString());
                 // When finished with the publisher, shutdown to free up resources.
