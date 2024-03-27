@@ -159,7 +159,7 @@ public class UserServiceImpl implements UserService {
             if (requestedUser.isEmpty()) {
                 logger.error("User not verified");
                 throw new UserNotVerifiedException("User Not Verified");
-            } else if(isIntegrationTest.equals("true")){
+            } else if(null!=isIntegrationTest && isIntegrationTest.equals("true")){
                 requestedUser.get().setVerified(true);
                 userRepository.save(requestedUser.get());
                 logger.info("User Email Verified");
@@ -169,7 +169,7 @@ public class UserServiceImpl implements UserService {
                 logger.info("User already verified:"+username);
                 return "User already verified";
             }
-            else if(token.equals(requestedUser.get().getId())){
+            else if(null!= token && token.equals(requestedUser.get().getId())){
                 Instant instantVerificationTime = requestedUser.get().getEmailSentTime().toInstant();
                 logger.info("instant time: "+Instant.now()+"for user:"+requestedUser.get().getUsername());
                 logger.info("db time: "+instantVerificationTime);
