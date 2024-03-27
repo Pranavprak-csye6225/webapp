@@ -62,7 +62,7 @@ public class UserController {
     }
 
     @GetMapping("/self")
-    public ResponseEntity<UserResponseDto> getUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload, @RequestHeader("authorization") String authorization) throws UserNotFoundException, UserNotVerifiedException {
+    public ResponseEntity<UserResponseDto> getUser(@RequestParam Map<String, String> queryParameter, @RequestBody(required = false) String payload, @RequestHeader(value = "authorization", required = false) String authorization) throws UserNotFoundException, UserNotVerifiedException {
         logger.debug("The request given by the user for get call: "+ payload);
         if (null != payload && !payload.isEmpty()) {
             logger.error("Payload is given");
