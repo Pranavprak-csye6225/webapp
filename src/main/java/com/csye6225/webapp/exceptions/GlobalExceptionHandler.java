@@ -55,6 +55,12 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).headers(headers).body(Collections.singletonMap("error", e.getMessage()));
     }
 
+    @ExceptionHandler(UserNotVerifiedException.class)
+    public ResponseEntity<Object> handleNotVerifiedException(UserNotVerifiedException e) {
+        System.out.println("handleNotVerifiedException: " + e);
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body(Collections.singletonMap("verificationStatus", e.getMessage()));
+    }
+
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<Object> handleWrongRequestException(HttpMessageNotReadableException e) {
         System.out.println("handleWrongRequestException: " + e);
