@@ -14,6 +14,9 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import org.springframework.beans.factory.annotation.Value;
+
+import java.util.Date;
 
 @Data
 @AllArgsConstructor
@@ -46,13 +49,21 @@ public class User {
             flags = Pattern.Flag.CASE_INSENSITIVE)
     private String username;
 
+    @Column(name = "IS_VERIFIED")
+    @Value("${props.boolean.isVerified:#{false}}")
+    private boolean isVerified;
+
+    @CreationTimestamp
+    @Column(name = "EMAIL_SENT_TIME")
+    private Date emailSentTime;
+
     @CreationTimestamp
     @Column(name = "ACCOUNT_CREATED")
-    private String accountCreated;
+    private Date accountCreated;
 
     @UpdateTimestamp
     @Column(name = "ACCOUNT_UPDATED")
-    private String accountUpdated;
+    private Date accountUpdated;
 
 
 }
