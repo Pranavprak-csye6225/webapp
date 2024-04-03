@@ -64,7 +64,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UserNotVerifiedException.class)
     public ResponseEntity<Object> handleNotVerifiedException(UserNotVerifiedException e) {
         logger.error("handleNotVerifiedException: " + e);
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).headers(headers).body(Collections.singletonMap("verificationStatus", e.getMessage()));
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).headers(headers).body(Collections.singletonMap("verificationStatus", e.getMessage()));
     }
 
     @ExceptionHandler(HttpMessageNotReadableException.class)
