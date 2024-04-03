@@ -53,8 +53,11 @@ public class User {
     @Value("${props.boolean.isVerified:#{false}}")
     private boolean isVerified;
     
-    @Column(name = "EMAIL_SENT_TIME")
-    private Date emailSentTime;
+    @Column(name = "EXPIRY_TIME")
+    private Date expiryTime;
+
+    @Column(name = "TOKEN")
+    private String token;
 
     @CreationTimestamp
     @Column(name = "ACCOUNT_CREATED")
