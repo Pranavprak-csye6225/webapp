@@ -30,6 +30,7 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -59,8 +60,10 @@ public class UserServiceImpl implements UserService {
             if (null != user.getPassword() && !user.getPassword().isBlank()) {
                 user.setPassword(bcryptEncoder(user.getPassword()));
             }
-            User createdUser = userRepository.save(this.modelMapper.map(user, User.class));
-            publishMessage(createdUser.getUsername()+":"+createdUser.getId());
+            User creatingUser = this.modelMapper.map(user, User.class);
+            creatingUser.setToken(UUID.randomUUID().toString());
+            User createdUser = userRepository.save(creatingUser);
+            publishMessage(createdUser.getUsername()+":"+creatingUser.getToken());
             return this.modelMapper.map(createdUser, UserResponseDto.class);
         } catch (Exception e) {
             logger.error("User cannot be created for user, "+user.getUsername());
@@ -169,12 +172,13 @@ public class UserServiceImpl implements UserService {
                 logger.info("User already verified:"+username);
                 return "User already verified";
             }
-            else if(null!= token && token.equals(requestedUser.get().getId())){
-                Instant instantVerificationTime = requestedUser.get().getEmailSentTime().toInstant();
+            else if(null!= token && token.equals(requestedUser.get().getToken())){
+                Instant instantVerificationTime = requestedUser.get().getExpiryTime().toInstant();
                 logger.info("instant time: "+Instant.now()+"for user:"+requestedUser.get().getUsername());
                 logger.info("db time: "+instantVerificationTime);
                 Duration duration = Duration.between(instantVerificationTime, Instant.now());
-                if(duration.toSeconds() < 120) {
+                logger.info(String.valueOf(duration.toSeconds()));
+                if(duration.toSeconds() < 0) {
                     requestedUser.get().setVerified(true);
                     userRepository.save(requestedUser.get());
                     logger.info("User Email Verified");
