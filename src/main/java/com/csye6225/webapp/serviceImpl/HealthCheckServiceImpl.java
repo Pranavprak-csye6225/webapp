@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.sql.DataSource;
+import java.sql.Connection;
 
 @Service
 public class HealthCheckServiceImpl implements HealthCheckService {
@@ -20,9 +21,7 @@ public class HealthCheckServiceImpl implements HealthCheckService {
     Logger logger = LoggerFactory.getLogger(HealthCheckServiceImpl.class);
     @Override
     public boolean isDatabaseConnected() {
-        try {
-            logger.info("Checking for database connection");
-            dataSource.getConnection();
+        try(Connection conn = dataSource.getConnection()) {
             logger.info("Database connection success");
             return true;
         } catch (Exception e) {
