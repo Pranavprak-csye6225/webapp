@@ -124,7 +124,7 @@ jobs:
         run: |
           gcloud compute instance-groups managed rolling-action start-update $IGM_ID \
           --type=$ROLLING_ACTION_TYPE \
-          --max-unavailable=$MAX_UNAVAILABLE
+          --max-unavailable=$MAX_UNAVAILABLE \
           --version=template=$TEMPLATE_ID-$RANDOM_UUID
       - name: 'Check if rolling updates are done'
         run: |
