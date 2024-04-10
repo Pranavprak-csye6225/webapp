@@ -65,6 +65,7 @@ jobs:
         working-directory: ./packer
         run: |
           IMAGE_NAME=$(packer build . | tee /dev/tty | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
+          echo "$IMAGE_NAME"
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
@@ -74,7 +75,7 @@ jobs:
         uses: 'google-github-actions/get-secretmanager-secrets@v2'
         with:
           secrets: |-
-              db_name:projects/321404517735/secrets/secret-database-name/versions/1
+              db_name:projects/321404517735/secrets/secret-database-name
               mysql_ip:projects/321404517735/secrets/secret-mysql-ip
               mysql_password:projects/321404517735/secrets/secret-mysql-password
               db_username:projects/321404517735/secrets/secret-user-name
