@@ -3,13 +3,10 @@ name: Packer Build workflow
 on:
   pull_request:
     branches: [ "main" ]
-    types:
-      - closed
 
 
 jobs:
   jobs1:
-    if: github.event.pull_request.merged == true
     name: Building custom image
     runs-on: ubuntu-latest
     env:
@@ -66,4 +63,37 @@ jobs:
 
       - name: Run packer build
         working-directory: ./packer
-        run: packer build .
+        run: |
+          echo ::set-env name=IMAGE_NAME::$(packer build . | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/')
+
+      - name: 'Set up Cloud SDK'
+        uses: 'google-github-actions/setup-gcloud@v2'
+
+      - name: 'Secrets'
+        id: 'secrets'
+        uses: 'google-github-actions/get-secretmanager-secrets@v2'
+        with:
+          secrets: |-
+              db_name:projects/321404517735/secrets/secret-database-name/versions/1
+              mysql_ip:projects/321404517735/secrets/secret-mysql-ip
+              mysql_password:projects/321404517735/secrets/secret-mysql-password
+              db_username:projects/321404517735/secrets/secret-user-name
+              instance_key:projects/321404517735/secrets/secret-instance-key
+      - name: 'Use gcloud CLI'
+        run: | 
+          gcloud compute instance-templates create instance-template- \
+            --machine-type=n2-standard-2 \
+            --instance-template-region=us-east1 \
+            --create-disk=name=instance-template-boot-disk,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
+            --network=projects/cloud-course-csye6225-dev/global/networks/vpc-network \
+            --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
+            --metadata=startup-script=<<-EOF
+                    echo "DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true" > .env
+                    echo "DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}}" >> .env
+                    echo "DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}" >> .env
+                    echo "PROJECT_ID=${var.project}" >> .env
+                    echo "TOPIC_ID=${var.pubsub_topic_name}" >> .env
+                    sudo chown -R csye6225:csye6225 .env
+                    sudo mv .env /opt/
+                  EOF \
+            --tags=vm-instance
