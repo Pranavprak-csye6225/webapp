@@ -82,7 +82,7 @@ jobs:
               instance_key:projects/321404517735/secrets/secret-instance-key
       - name: 'Creating cloud instance template'
         run: |
-          gcloud compute instance-templates create instance-template-10 \
+          gcloud compute instance-templates create instance-template-11 \
             --machine-type=n2-standard-2 \
             --instance-template-region=us-east1 \
             --create-disk=image=$IMAGE_NAME,size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
@@ -94,12 +94,12 @@ jobs:
         run: |
           gcloud compute instance-groups managed set-instance-template \
           projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
-          --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-10
+          --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-11
       - name: 'Start rolling update to the group'
         run: |
           gcloud compute instance-groups managed rolling-action start-update projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
-          --type="opportunistic"
-          --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-10
+          --type="opportunistic" \
+          --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-11
       - name: 'Check if rolling updates are done'
         run: |
           gcloud compute instance-groups managed wait-until projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
