@@ -69,8 +69,9 @@ jobs:
         working-directory: ./packer
         run: |
           IMAGE_NAME=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2) \
-          echo "IMAGE_NAME" \
+          echo "$IMAGE_NAME" \
           echo "IMAGE_NAME=${IMAGE_NAME}" >> "$GITHUB_ENV" \
+          echo :$IMAGE_NAME"
           
 
 #      - name: 'Set up Cloud SDK'
