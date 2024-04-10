@@ -15,6 +15,7 @@ jobs:
       DATABASE_URL: ${{secrets.DATABASE_URL}}
       TOPIC_ID: ${{secrets.TOPIC_ID}}
       PROJECT_ID: ${{secrets.PROJECT_ID}}
+
       PKR_VAR_project_id: ${{secrets.PROJECT_ID}}
       PKR_VAR_source_image_family: ${{secrets.SOURCE_IMAGE_FAMILY}}
       PKR_VAR_zone: ${{secrets.IMAGE_ZONE}}
@@ -62,10 +63,12 @@ jobs:
       - name: Run packer build
         working-directory: ./packer
         run: |
-          output=$(packer build .)
-          echo $output
-          IMAGE_NAME=$(echo $output | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
-          echo "$IMAGE_NAME"
+          packer build .
+
+      - name: Storing Image Name
+        run: |
+          IMAGE_NAME=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2) \
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> "$GITHUB_ENV"
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
@@ -80,6 +83,7 @@ jobs:
               mysql_password:projects/321404517735/secrets/secret-mysql-password
               db_username:projects/321404517735/secrets/secret-user-name
               instance_key:projects/321404517735/secrets/secret-instance-key
+              service_account_email:projects/321404517735/secrets/secret-service-account/versions/1
       - name: 'Creating cloud instance template'
         run: |
           gcloud compute instance-templates create instance-template-11 \
@@ -89,6 +93,7 @@ jobs:
             --network=projects/cloud-course-csye6225-dev/global/networks/vpc-network \
             --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
             --metadata=startup-script="echo 'DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true' > .env && echo 'DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}' >> .env && echo 'DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}' >> .env && echo 'PROJECT_ID=$PROJECT_ID' >> .env && echo 'TOPIC_ID=$TOPIC_ID' >> .env && sudo chown -R csye6225:csye6225 .env && sudo mv .env /opt/" \
+            --service-account=${{steps.secrets.outputs.instance_key}}
             --tags=vm-instance
       - name: 'Linking instance template with igm'
         run: |
