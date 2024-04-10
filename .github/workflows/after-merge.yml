@@ -93,14 +93,14 @@ jobs:
       - name: 'Linking instance template with igm'
         run: |
           gcloud compute instance-groups managed set-instance-template \
-          projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm \
+          projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
           --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-7
       - name: 'Start rolling update to the group'
         run: |
-          gcloud compute instance-groups managed rolling-action start-update projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm \
+          gcloud compute instance-groups managed rolling-action start-update projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
           --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-7
       - name: 'Check if rolling updates are done'
         run: |
-          gcloud compute instance-groups managed wait-until projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm \
+          gcloud compute instance-groups managed wait-until projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
           --version-target-reached \
-          gcloud compute instance-groups managed describe projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm
+          gcloud compute instance-groups managed describe projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm
