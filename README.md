@@ -25,7 +25,7 @@ This repository contains the codebase for a web application developed using Java
 - Environment Variables: Locally store the database username and password
 
 ## Running the Application
-1. Start the MySQL database if not already running.
+1. Start the MySQL database if not already running
 2. Build and run the application:
    ```bash
    ./mvnw spring-boot:run
