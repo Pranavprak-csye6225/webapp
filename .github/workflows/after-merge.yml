@@ -105,7 +105,7 @@ jobs:
         run: echo "RANDOM_UUID=$(uuidgen | tr -d '-')" >> $GITHUB_ENV
       - name: 'Creating cloud instance template'
         run: |
-          gcloud compute instance-templates create $INSTANCE_TEMPLATE_NAME-$RANDOM_UUID' \
+          gcloud compute instance-templates create $INSTANCE_TEMPLATE_NAME-$RANDOM_UUID \
             --machine-type=$MACHINE_TYPE \
             --instance-template-region=$INSTANCE_REGION \
             --create-disk=image=$IMAGE_NAME,size=$DISK_SIZE,type=$DISK_TYPE,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
