@@ -3,10 +3,14 @@ name: Packer Build workflow
 on:
   pull_request:
     branches: [ "main" ]
+    types:
+      - closed
+
 
 
 jobs:
   jobs1:
+    if: github.event.pull_request.merged == true
     name: Building custom image
     runs-on: ubuntu-latest
     env:
