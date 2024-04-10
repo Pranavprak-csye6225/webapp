@@ -59,6 +59,13 @@ jobs:
       - name: Run packer validate
         working-directory: ./packer
         run: packer validate .
+      - name: Run packer build
+        working-directory: ./packer
+        run: |
+          output=$(packer build .)
+          echo $output
+          IMAGE_NAME=$(echo $output | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
+          echo "$IMAGE_NAME"
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
@@ -73,9 +80,9 @@ jobs:
               mysql_password:projects/321404517735/secrets/secret-mysql-password
               db_username:projects/321404517735/secrets/secret-user-name
               instance_key:projects/321404517735/secrets/secret-instance-key
-      - name: 'Use gcloud CLI'
+      - name: 'Creating cloud instance template'
         run: | 
-          gcloud compute instance-templates create instance-template-6 \
+          gcloud compute instance-templates create instance-template-7 \
             --machine-type=n2-standard-2 \
             --instance-template-region=us-east1 \
             --create-disk=name=instance-template-boot-disk,image=centos8-webapp-1712132388,size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
@@ -83,3 +90,17 @@ jobs:
             --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
             --metadata=startup-script="echo 'DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true' > .env && echo 'DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}}' >> .env && echo 'DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}' >> .env && echo 'PROJECT_ID=$PROJECT_ID' >> .env && echo 'TOPIC_ID=$TOPIC_ID' >> .env && sudo chown -R csye6225:csye6225 .env && sudo mv .env /opt/" \
             --tags=vm-instance
+      - name: 'Linking instance template with igm'
+        run: |
+          gcloud compute instance-groups managed set-instance-template \
+            projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm \
+            --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-7
+      - name: 'Start rolling update to the group'
+        run: |
+          gcloud compute instance-groups managed rolling-action start-update projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm \
+            --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-7
+      - name: 'Check if rolling updates are done'
+        run: |
+          gcloud compute instance-groups managed wait-until projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm \
+            --version-target-reached \
+          gcloud compute instance-groups managed describe projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroups/webserver-igm
