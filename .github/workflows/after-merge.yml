@@ -64,7 +64,7 @@ jobs:
         working-directory: ./packer
         run: |
           output=$(packer build .)
-          echo $output
+          cat $output
           IMAGE_NAME=$(echo $output | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
           echo "$IMAGE_NAME"
 
@@ -83,7 +83,7 @@ jobs:
               instance_key:projects/321404517735/secrets/secret-instance-key
       - name: 'Use gcloud CLI'
         run: | 
-          gcloud compute instance-templates create instance-template- \
+          gcloud compute instance-templates create instance-template-5 \
             --machine-type=n2-standard-2 \
             --instance-template-region=us-east1 \
             --create-disk=name=instance-template-boot-disk,image=$IMAGE_NAME,size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
