@@ -82,25 +82,27 @@ jobs:
               instance_key:projects/321404517735/secrets/secret-instance-key
       - name: 'Creating cloud instance template'
         run: |
-          gcloud compute instance-templates create instance-template-7 \
+          gcloud compute instance-templates create instance-template-8 \
             --machine-type=n2-standard-2 \
             --instance-template-region=us-east1 \
             --create-disk=image=centos8-webapp-1712132388,size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
             --network=projects/cloud-course-csye6225-dev/global/networks/vpc-network \
             --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
-            --metadata=startup-script="echo 'DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true' > .env && echo 'DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}}' >> .env && echo 'DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}' >> .env && echo 'PROJECT_ID=$PROJECT_ID' >> .env && echo 'TOPIC_ID=$TOPIC_ID' >> .env && sudo chown -R csye6225:csye6225 .env && sudo mv .env /opt/" \
+            --metadata=startup-script="echo 'DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true' > .env && echo 'DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}' >> .env && echo 'DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}' >> .env && echo 'PROJECT_ID=$PROJECT_ID' >> .env && echo 'TOPIC_ID=$TOPIC_ID' >> .env && sudo chown -R csye6225:csye6225 .env && sudo mv .env /opt/" \
             --tags=vm-instance
       - name: 'Linking instance template with igm'
         run: |
           gcloud compute instance-groups managed set-instance-template \
           projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
-          --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-7
+          --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-8
       - name: 'Start rolling update to the group'
         run: |
           gcloud compute instance-groups managed rolling-action start-update projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
-          --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-7
+          --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-8
       - name: 'Check if rolling updates are done'
         run: |
           gcloud compute instance-groups managed wait-until projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
           --version-target-reached \
+      - name: 'Describing the status of update'
+        run: |
           gcloud compute instance-groups managed describe projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm
