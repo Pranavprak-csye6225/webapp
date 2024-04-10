@@ -18,9 +18,6 @@ variable "network" {
   type = string
 }
 
-variable "image_name" {
-  type = string
-}
 
 variable "image_description" {
   type = string

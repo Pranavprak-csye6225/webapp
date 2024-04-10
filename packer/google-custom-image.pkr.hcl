@@ -13,7 +13,7 @@ source "googlecompute" "centos8_webapp" {
   zone                  = var.zone
   ssh_username          = var.ssh_username
   network               = var.network
-  image_name            = "${var.image_name}-{{timestamp}}"
+  image_name            = "centos8-webapp-{{timestamp}}"
   image_description     = var.image_description
   service_account_email = var.service_account_email
 }
