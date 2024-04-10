@@ -36,9 +36,9 @@ jobs:
       - name: Preparing log directory
         run: |
           sudo chmod -R 733 /var/log/
-#      - name: Build with Maven
-#        run:  |
-#          mvn -B package --file pom.xml
+      - name: Build with Maven
+        run:  |
+          mvn -B package --file pom.xml
 
       - name: GCP Credentials
         uses: 'google-github-actions/auth@v2'
