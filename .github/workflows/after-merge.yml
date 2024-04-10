@@ -122,6 +122,7 @@ jobs:
       - name: 'Start rolling update to the group'
         run: |
           gcloud compute instance-groups managed rolling-action start-update $IGM_ID \
+          --type=$ROLLING_ACTION_TYPE
           --version=template=$TEMPLATE_ID-$RANDOM_UUID
       - name: 'Check if rolling updates are done'
         run: |
