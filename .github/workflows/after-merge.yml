@@ -20,7 +20,6 @@ jobs:
       PKR_VAR_zone: ${{secrets.IMAGE_ZONE}}
       PKR_VAR_ssh_username: ${{secrets.SSH_USERNAME}}
       PKR_VAR_network: ${{secrets.IMAGE_NETWORK}}
-      PKR_VAR_image_name: ${{secrets.IMAGE_NAME}}
       PKR_VAR_image_description: ${{secrets.IMAGE_DESCRIPTION}}
       PKR_VAR_service_account_email: ${{secrets.SERVICE_ACCOUNT_EMAIL}}
 
@@ -64,7 +63,7 @@ jobs:
       - name: Run packer build
         working-directory: ./packer
         run: |
-          IMAGE_NAME=$(packer build . | tee /dev/stdout | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
+          IMAGE_NAME=$(echo packer build . | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
           echo "$IMAGE_NAME"
 
       - name: 'Set up Cloud SDK'
