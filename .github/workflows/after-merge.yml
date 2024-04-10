@@ -94,12 +94,11 @@ jobs:
         uses: 'google-github-actions/get-secretmanager-secrets@v2'
         with:
           secrets: |-
-              db_name:$DB_NAME_SECRET_KEY
-              mysql_ip:$MYSQL_IP_SECRET_KEY
-              mysql_password:$MYSQL_IP_SECRET_KEY
-              db_username:$MYSQL_PASSWORD_SECRET_KEY
-              instance_key:$INSTANCE_KEY_SECRET_KEY
-              service_account_email:$INSTANCE_KEY_SECRET_KEY
+            db_name:projects/321404517735/secrets/secret-database-name
+            mysql_ip:projects/321404517735/secrets/secret-mysql-ip
+            mysql_password:projects/321404517735/secrets/secret-mysql-password
+            db_username:projects/321404517735/secrets/secret-user-name
+            instance_key:projects/321404517735/secrets/secret-instance-key
       - name: Generate random string
         id: random-string
         run: echo "RANDOM_UUID=$(uuidgen | tr -d '-')" >> $GITHUB_ENV
