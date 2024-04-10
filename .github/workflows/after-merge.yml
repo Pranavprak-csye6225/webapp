@@ -64,7 +64,7 @@ jobs:
       - name: Run packer build
         working-directory: ./packer
         run: |
-          echo ::set-env name=IMAGE_NAME::$(packer build . | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/')
+          echo "IMAGE_NAME=$(packer build . | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') >> "$GITHUB_ENV"
 
       - name: 'Set up Cloud SDK'
         uses: 'google-github-actions/setup-gcloud@v2'
@@ -84,7 +84,7 @@ jobs:
           gcloud compute instance-templates create instance-template- \
             --machine-type=n2-standard-2 \
             --instance-template-region=us-east1 \
-            --create-disk=name=instance-template-boot-disk,image=${{ env.IMAGE_NAME }},size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
+            --create-disk=name=instance-template-boot-disk,image=$IMAGE_NAME,size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
             --network=projects/cloud-course-csye6225-dev/global/networks/vpc-network \
             --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
             --metadata=startup-script=<<-EOF
