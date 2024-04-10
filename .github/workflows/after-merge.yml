@@ -63,7 +63,7 @@ jobs:
       - name: Run packer build
         working-directory: ./packer
         run: |
-          IMAGE_NAME=$(echo packer build . | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
+          IMAGE_NAME=$(packer build . | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
           echo "$IMAGE_NAME"
 
       - name: 'Set up Cloud SDK'
@@ -91,8 +91,8 @@ jobs:
                     echo "DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true" > .env
                     echo "DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}}" >> .env
                     echo "DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}" >> .env
-                    echo "PROJECT_ID=${var.project}" >> .env
-                    echo "TOPIC_ID=${var.pubsub_topic_name}" >> .env
+                    echo "PROJECT_ID=$PROJECT_ID" >> .env
+                    echo "TOPIC_ID=$TOPIC_ID" >> .env
                     sudo chown -R csye6225:csye6225 .env
                     sudo mv .env /opt/
                   EOF \
