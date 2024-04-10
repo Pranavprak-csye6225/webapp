@@ -66,6 +66,7 @@ jobs:
           packer build .
 
       - name: Storing Image Name
+        working-directory: ./packer
         run: |
           IMAGE_NAME=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2) \
           echo "IMAGE_NAME=${IMAGE_NAME}" >> "$GITHUB_ENV"
@@ -93,7 +94,7 @@ jobs:
             --network=projects/cloud-course-csye6225-dev/global/networks/vpc-network \
             --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
             --metadata=startup-script="echo 'DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true' > .env && echo 'DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}' >> .env && echo 'DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}' >> .env && echo 'PROJECT_ID=$PROJECT_ID' >> .env && echo 'TOPIC_ID=$TOPIC_ID' >> .env && sudo chown -R csye6225:csye6225 .env && sudo mv .env /opt/" \
-            --service-account=${{steps.secrets.outputs.instance_key}}
+            --service-account=${{steps.secrets.outputs.service_account_email}} \
             --tags=vm-instance
       - name: 'Linking instance template with igm'
         run: |
