@@ -39,7 +39,7 @@ build {
     "./script/transfer-ownership.sh", "./script/ops-agent.sh", "./script/startup-service.sh"]
   }
   post-processor "manifest" {
-    output = "manifest.json"
+    output     = "manifest.json"
     strip_path = true
   }
 
