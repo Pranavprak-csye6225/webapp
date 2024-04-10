@@ -30,9 +30,9 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-#      - name: Start MySQL
-#        run: |
-#          sudo /etc/init.d/mysql start
+      - name: Start MySQL
+        run: |
+          sudo /etc/init.d/mysql start
       - name: Preparing log directory
         run: |
           sudo chmod -R 733 /var/log/
