@@ -63,7 +63,9 @@ jobs:
       - name: Run packer build
         working-directory: ./packer
         run: |
-          IMAGE_NAME=$(packer build . | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
+          output=$(packer build .)
+          echo $output
+          IMAGE_NAME=$(echo $output | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
           echo "$IMAGE_NAME"
 
       - name: 'Set up Cloud SDK'
