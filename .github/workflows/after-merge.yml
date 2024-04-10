@@ -31,7 +31,7 @@ jobs:
       INSTANCE_TAGS: ${{secrets.INSTANCE_TAGS}}
       IGM_ID: ${{secrets.IGM_ID}}
       TEMPLATE_ID: ${{secrets.TEMPLATE_ID}}
-      ROLLING_ACTION_TYPE: ${{secrets.ROLLING_ACTION_TYPE}
+      ROLLING_ACTION_TYPE: ${{secrets.ROLLING_ACTION_TYPE}}
       PKR_VAR_project_id: ${{secrets.PROJECT_ID}}
       PKR_VAR_source_image_family: ${{secrets.SOURCE_IMAGE_FAMILY}}
       PKR_VAR_zone: ${{secrets.IMAGE_ZONE}}
