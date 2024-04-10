@@ -69,47 +69,49 @@ jobs:
         working-directory: ./packer
         run: |
           IMAGE_NAME=$(jq -r '.builds[-1].artifact_id' manifest.json | cut -d ":" -f2) \
-          echo "IMAGE_NAME=${IMAGE_NAME}" >> "$GITHUB_ENV"
+          echo "IMAGE_NAME" \
+          echo "IMAGE_NAME=${IMAGE_NAME}" >> "$GITHUB_ENV" \
+          
 
-      - name: 'Set up Cloud SDK'
-        uses: 'google-github-actions/setup-gcloud@v2'
-
-      - name: 'Secrets'
-        id: 'secrets'
-        uses: 'google-github-actions/get-secretmanager-secrets@v2'
-        with:
-          secrets: |-
-              db_name:projects/321404517735/secrets/secret-database-name
-              mysql_ip:projects/321404517735/secrets/secret-mysql-ip
-              mysql_password:projects/321404517735/secrets/secret-mysql-password
-              db_username:projects/321404517735/secrets/secret-user-name
-              instance_key:projects/321404517735/secrets/secret-instance-key
-              service_account_email:projects/321404517735/secrets/secret-service-account/versions/1
-      - name: 'Creating cloud instance template'
-        run: |
-          gcloud compute instance-templates create instance-template-11 \
-            --machine-type=n2-standard-2 \
-            --instance-template-region=us-east1 \
-            --create-disk=image=$IMAGE_NAME,size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
-            --network=projects/cloud-course-csye6225-dev/global/networks/vpc-network \
-            --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
-            --metadata=startup-script="echo 'DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true' > .env && echo 'DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}' >> .env && echo 'DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}' >> .env && echo 'PROJECT_ID=$PROJECT_ID' >> .env && echo 'TOPIC_ID=$TOPIC_ID' >> .env && sudo chown -R csye6225:csye6225 .env && sudo mv .env /opt/" \
-            --service-account=${{steps.secrets.outputs.service_account_email}} \
-            --tags=vm-instance
-      - name: 'Linking instance template with igm'
-        run: |
-          gcloud compute instance-groups managed set-instance-template \
-          projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
-          --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-11
-      - name: 'Start rolling update to the group'
-        run: |
-          gcloud compute instance-groups managed rolling-action start-update projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
-          --type="opportunistic" \
-          --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-11
-      - name: 'Check if rolling updates are done'
-        run: |
-          gcloud compute instance-groups managed wait-until projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
-          --version-target-reached \
-      - name: 'Describing the status of update'
-        run: |
-          gcloud compute instance-groups managed describe projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm
+#      - name: 'Set up Cloud SDK'
+#        uses: 'google-github-actions/setup-gcloud@v2'
+#
+#      - name: 'Secrets'
+#        id: 'secrets'
+#        uses: 'google-github-actions/get-secretmanager-secrets@v2'
+#        with:
+#          secrets: |-
+#              db_name:projects/321404517735/secrets/secret-database-name
+#              mysql_ip:projects/321404517735/secrets/secret-mysql-ip
+#              mysql_password:projects/321404517735/secrets/secret-mysql-password
+#              db_username:projects/321404517735/secrets/secret-user-name
+#              instance_key:projects/321404517735/secrets/secret-instance-key
+#              service_account_email:projects/321404517735/secrets/secret-service-account/versions/1
+#      - name: 'Creating cloud instance template'
+#        run: |
+#          gcloud compute instance-templates create instance-template-11 \
+#            --machine-type=n2-standard-2 \
+#            --instance-template-region=us-east1 \
+#            --create-disk=image=$IMAGE_NAME,size=100,type=pd-balanced,auto-delete=yes,boot=true,kms-key=${{steps.secrets.outputs.instance_key}} \
+#            --network=projects/cloud-course-csye6225-dev/global/networks/vpc-network \
+#            --subnet=projects/cloud-course-csye6225-dev/regions/us-east1/subnetworks/webapp \
+#            --metadata=startup-script="echo 'DATABASE_URL=jdbc:mysql://${{steps.secrets.outputs.mysql_ip}}:3306/${{steps.secrets.outputs.db_name}}?createDatabaseIfNotExist=true' > .env && echo 'DATABASE_USERNAME=${{steps.secrets.outputs.db_username}}' >> .env && echo 'DATABASE_PASSWORD=${{steps.secrets.outputs.mysql_password}}' >> .env && echo 'PROJECT_ID=$PROJECT_ID' >> .env && echo 'TOPIC_ID=$TOPIC_ID' >> .env && sudo chown -R csye6225:csye6225 .env && sudo mv .env /opt/" \
+#            --service-account=${{steps.secrets.outputs.service_account_email}} \
+#            --tags=vm-instance
+#      - name: 'Linking instance template with igm'
+#        run: |
+#          gcloud compute instance-groups managed set-instance-template \
+#          projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
+#          --template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-11
+#      - name: 'Start rolling update to the group'
+#        run: |
+#          gcloud compute instance-groups managed rolling-action start-update projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
+#          --type="opportunistic" \
+#          --version=template=projects/cloud-course-csye6225-dev/regions/us-east1/instanceTemplates/instance-template-11
+#      - name: 'Check if rolling updates are done'
+#        run: |
+#          gcloud compute instance-groups managed wait-until projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm \
+#          --version-target-reached \
+#      - name: 'Describing the status of update'
+#        run: |
+#          gcloud compute instance-groups managed describe projects/cloud-course-csye6225-dev/regions/us-east1/instanceGroupManagers/webserver-igm
