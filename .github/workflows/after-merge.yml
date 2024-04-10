@@ -32,6 +32,7 @@ jobs:
       IGM_ID: ${{secrets.IGM_ID}}
       TEMPLATE_ID: ${{secrets.TEMPLATE_ID}}
       ROLLING_ACTION_TYPE: ${{secrets.ROLLING_ACTION_TYPE}}
+      $MAX_UNAVAILABLE: ${{secrets.MAX_UNAVAILABLE}}
       PKR_VAR_project_id: ${{secrets.PROJECT_ID}}
       PKR_VAR_source_image_family: ${{secrets.SOURCE_IMAGE_FAMILY}}
       PKR_VAR_zone: ${{secrets.IMAGE_ZONE}}
@@ -123,6 +124,7 @@ jobs:
         run: |
           gcloud compute instance-groups managed rolling-action start-update $IGM_ID \
           --type=$ROLLING_ACTION_TYPE \
+          --max-unavailable=$MAX_UNAVAILABLE
           --version=template=$TEMPLATE_ID-$RANDOM_UUID
       - name: 'Check if rolling updates are done'
         run: |
