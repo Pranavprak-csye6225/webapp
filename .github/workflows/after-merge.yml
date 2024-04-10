@@ -99,6 +99,7 @@ jobs:
             mysql_password:projects/321404517735/secrets/secret-mysql-password
             db_username:projects/321404517735/secrets/secret-user-name
             instance_key:projects/321404517735/secrets/secret-instance-key
+            service_account_email:projects/321404517735/secrets/secret-service-account
       - name: Generate random string
         id: random-string
         run: echo "RANDOM_UUID=$(uuidgen | tr -d '-')" >> $GITHUB_ENV
