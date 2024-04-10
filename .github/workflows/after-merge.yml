@@ -64,7 +64,7 @@ jobs:
         working-directory: ./packer
         run: |
           output=$(packer build .)
-          cat $output
+          echo $output
           IMAGE_NAME=$(echo $output | grep -Eo 'A disk image was created in the .+ project: .+' | sed -E 's/A disk image was created in the .+ project: (.+)/\1/') && echo "IMAGE_NAME=$IMAGE_NAME" >> "$GITHUB_ENV"
           echo "$IMAGE_NAME"
 
