@@ -48,7 +48,7 @@ class WebappApplicationTests {
                 .contentType(ContentType.JSON).body(json)
                 .log().all()
                 .when()
-                .post("/v1/user")
+                .post("/v8/user")
                 .then()
                 .log().all().assertThat().statusCode(201);
         String userid = postResponse.extract().path("id");
@@ -58,14 +58,14 @@ class WebappApplicationTests {
                 .header("isIntegrationTest", "true")
                 .log().all()
                 .when()
-                .get("/v1/user/verify")
+                .get("/v8/user/verify")
                 .then()
                 .log().all().assertThat().statusCode(200);
         given()
                 .headers(headers)
                 .log().all()
                 .when()
-                .get("/v1/user/self")
+                .get("/v8/user/self")
                 .then()
                 .log().all().assertThat().statusCode(200)
                 .body("username", equalTo("pranav0715@gmail.com"))
@@ -85,7 +85,7 @@ class WebappApplicationTests {
                 .contentType(ContentType.JSON).body(json)
                 .log().all()
                 .when()
-                .put("/v1/user/self")
+                .put("/v8/user/self")
                 .then()
                 .log().all().assertThat().statusCode(204);
 
@@ -94,7 +94,7 @@ class WebappApplicationTests {
                 .headers(headers)
                 .log().all()
                 .when()
-                .get("/v1/user/self")
+                .get("/v8/user/self")
                 .then()
                 .log().all().assertThat().statusCode(200)
                 .body("username", equalTo("pranav0715@gmail.com"))
