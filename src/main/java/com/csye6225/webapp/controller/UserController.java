@@ -21,7 +21,7 @@ import java.util.Collections;
 import java.util.Map;
 
 @RestController
-@RequestMapping("/v1/user")
+@RequestMapping("/v8/user")
 public class UserController {
 
     Logger logger = LoggerFactory.getLogger(UserController.class);
